@@ -13,10 +13,6 @@ interface BAL {
     function gulp(address token) external;
 }
 
-interface IPriceOracle {
-    function getPrice(address asset) external view returns (uint256);
-}
-
 contract YUANRebaser {
     using SafeMath for uint256;
 
@@ -57,11 +53,6 @@ contract YUANRebaser {
     event NewReserveContract(uint256 reserveIndex, address oldReserveContract, address newReserveContract);
 
     /**
-     * @notice Sets the price oracle
-     */
-    event NewPriceOracle(address oldPriceOracle, address newPriceOracle);
-
-    /**
      * @notice Sets the reserve contract
      */
     event TreasuryIncreased(uint256 reservesAdded, uint256 yuansSold, uint256 yuansFromReserves, uint256 yuansToReserves);
@@ -90,9 +81,6 @@ contract YUANRebaser {
 
     /// @notice Peg target
     uint256 public targetRate;
-
-    /// @notice Price Oracle of Peg target
-    address public priceOracle;
 
     // If the current exchange rate is within this fractional distance from the target, no supply
     // update is performed. Fixed point number--same format as the rate.
@@ -181,8 +169,7 @@ contract YUANRebaser {
         address uniswap_factory,
         address[3] memory reservesContracts_,
         address public_goods_,
-        uint256 public_goods_perc_,
-        address priceOracle_
+        uint256 public_goods_perc_
     ) public {
         minRebaseTimeIntervalSec = 12 hours;
         rebaseWindowOffsetSec = 7200; // 10am/10pm UTC+8 rebases
@@ -219,9 +206,6 @@ contract YUANRebaser {
 
         // 1 YYCRV
         targetRate = BASE;
-
-        // Price Oracle for peg target
-        priceOracle = priceOracle_;
 
         // twice daily rebase, with targeting reaching peg in 5 days
         rebaseLag = 10;
@@ -373,10 +357,6 @@ contract YUANRebaser {
         // cannot enable prior to end of rebaseDelay
         require(now >= timeOfTWAPInit + rebaseDelay, "!end_delay");
 
-        // cannot enable without reserve token price
-        uint256 price = IPriceOracle(priceOracle).getPrice(reserveToken);
-        require(price > 0, "Reserve token price is not available");
-
         rebasingActive = true;
     }
 
@@ -402,7 +382,7 @@ contract YUANRebaser {
         epoch = epoch.add(1);
 
         // get exchange rate uniswap TWAP * reserve token price;
-        uint256 exchangeRate = getExchangeRate();
+        uint256 exchangeRate = getTWAP();
 
         // calculates % change to supply
         (uint256 offPegPerc, bool positive) = computeOffPegPerc(exchangeRate);
@@ -708,17 +688,6 @@ contract YUANRebaser {
     }
 
     /**
-     * @notice Calculates exchange rate
-     *
-     */
-    function getExchangeRate() internal returns (uint256) {
-        uint256 price = IPriceOracle(priceOracle).getPrice(reserveToken);
-        require(price > 0, "Reserve token price can not be 0");
-
-        return getTWAP().mul(price).div(BASE);
-    }
-
-    /**
      * @notice Calculates current TWAP from uniswap
      *
      */
@@ -742,14 +711,6 @@ contract YUANRebaser {
         // cant overflow
         // effectively: (x * 1e18 / 2**112)
         return (priceAverage * BASE) >> 112;
-    }
-
-    /**
-     * @notice Calculates current exchange rate
-     *
-     */
-    function getCurrentExchangeRate() public view returns (uint256) {
-        return getCurrentTWAP().mul(IPriceOracle(priceOracle).getPrice(reserveToken)).div(BASE);
     }
 
     /**
@@ -785,17 +746,6 @@ contract YUANRebaser {
     function setTargetRate(uint256 targetRate_) external onlyGov {
         require(targetRate_ > 0);
         targetRate = targetRate_;
-    }
-
-    /**
-     * @notice Sets the the price oracle.
-     * @param priceOracle_ The new price oracle.
-     */
-    function setPriceOracle(address priceOracle_) external onlyGov {
-        require(priceOracle_ != address(0));
-        address oldPriceOracle = priceOracle;
-        priceOracle = priceOracle_;
-        emit NewPriceOracle(oldPriceOracle, priceOracle_);
     }
 
     /**
