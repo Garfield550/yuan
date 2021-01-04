@@ -4,7 +4,9 @@
   "description": "YUAN protocol repo",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "truffle compile",
+    "format": "prettier --write contracts/**/*.sol"
   },
   "author": "",
   "license": "ISC",
@@ -16,12 +18,15 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "@truffle/hdwallet-provider": "^1.0.40",
+    "@truffle/hdwallet-provider": "^1.2.1",
     "chai": "^4.2.0",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^7.0.4",
     "hardhat": "^2.0.3",
     "mocha": "^8.2.1",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.2",
+    "truffle": "^5.1.59",
     "truffle-plugin-verify": "^0.5.0"
   }
 }
