@@ -20,7 +20,7 @@ module.exports = migration;
 
 async function deployToken(deployer, network) {
   await deployer.deploy(YUANImplementation);
-  if (network != "mainnet") {
+  if (network !== "mainnet") {
     await deployer.deploy(YUANProxy,
       "YUAN",
       "YUAN",

@@ -1,19 +1,22 @@
 require('dotenv').config();
 
-const HDWalletProvider = require("truffle-hdwallet-provider");
-var infuraKey = process.env.INFURA_APIKEY;
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+const infuraKey = process.env.INFURA_APIKEY;
 
-const readline = require('readline');
-const deployer = require('./deployer.json');
+// const readline = require('readline');
+// const deployer = require('./deployer.json');
 
-const network = process.env.NETWORK;
-const Web3 = require('web3');
-const web3 = new Web3(new Web3.providers.HttpProvider(`https://${network}.infura.io/v3/${infuraKey}`));
+// const network = process.env.NETWORK;
+// const Web3 = require('web3');
+// const web3 = new Web3(new Web3.providers.HttpProvider(`https://${network}.infura.io/v3/${infuraKey}`));
 // var password = await cipherTextProcess('Please enter your password:\n');
-var password = "test!"
-var res = web3.eth.accounts.decrypt(deployer, password.toString().replace(/[\r\n]/g,""));
+// var password = "test!"
+// var res = web3.eth.accounts.decrypt(deployer, password.toString().replace(/[\r\n]/g,""));
 
-var privateKeys = res.privateKey.slice(2);
+// var privateKeys = res.privateKey.slice(2);
+
+const fs = require('fs');
+const privateKeys = fs.readFileSync(".secret").toString().trim();
 const keyLength = 1;
 
 
@@ -82,7 +85,17 @@ module.exports = {
             confirmations: 2,
             timeoutBlocks: 200,
             skipDryRun: true
-        }
+        },
+
+        testnet: {
+            provider: () => new HDWalletProvider(privateKeys, `https://data-seed-prebsc-1-s1.binance.org:8545`, 0 , keyLength),
+            network_id: 97, // bsc testnet's id
+            gas: 6721975,
+            gasPrice: 30000000000, // Gas price used for deploys: 10gwei
+            confirmations: 10,
+            timeoutBlocks: 200,
+            skipDryRun: true
+        },
     },
 
     // Set default mocha options here, use special reporters etc.
@@ -111,6 +124,7 @@ module.exports = {
         'truffle-plugin-verify'
     ],
     api_keys: {
-        etherscan: process.env.ETHERSCAN_KEY
+        etherscan: process.env.ETHERSCAN_KEY,
+        bscscan: process.env.BSCSCAN_KEY
     }
 }

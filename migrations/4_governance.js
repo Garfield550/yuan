@@ -9,7 +9,7 @@ const YUANProxy = artifacts.require("YUANDelegator");
 // Rs
 // deployed second
 const YUANReserves = artifacts.require("YUANReserves");
-const YUANRebaser = artifacts.require("YUANRebaser");
+const YUANRebaser = artifacts.require("YUANRebaserV2");
 
 // Governance
 // deployed third

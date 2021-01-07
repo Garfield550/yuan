@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "truffle compile",
-    "format": "prettier --write contracts/**/*.sol"
+    "deploy:test": "truffle test --network testnet",
+    "migrate": "truffle migrate --network testnet",
+    "format": "prettier --write contracts/**/*.sol",
+    "flatten": "truffle-flattener"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +30,7 @@
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.2",
     "truffle": "^5.1.59",
-    "truffle-plugin-verify": "^0.5.0"
+    "truffle-flattener": "^1.5.0",
+    "truffle-plugin-verify": "^0.5.4"
   }
 }

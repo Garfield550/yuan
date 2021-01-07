@@ -8,7 +8,7 @@ const YUANProxy = artifacts.require("YUANDelegator");
 
 // deployed third
 const YUANReserves = artifacts.require("YUANReserves");
-const YUANRebaser = artifacts.require("YUANRebaser");
+const YUANRebaser = artifacts.require("YUANRebaser2");
 
 const Gov = artifacts.require("GovernorAlpha");
 const Timelock = artifacts.require("Timelock");

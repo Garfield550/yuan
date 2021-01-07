@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // ============ Contracts ============
 
 // Token
@@ -8,7 +10,7 @@ const Oracle = artifacts.require("PriceOracle");
 // Rs
 // deployed second
 const YUANReserves = artifacts.require("YUANReserves");
-const YUANRebaser = artifacts.require("YUANRebaser");
+const YUANRebaser = artifacts.require("YUANRebaserV2");
 
 // ============ Main Migration ============
 
@@ -24,20 +26,22 @@ module.exports = migration;
 
 
 async function deployRs(deployer, network) {
-  let reserveToken = "0xeb269732ab75A6fD61Ea60b06fE994cD32a83549";
-  let uniswap_factory = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
+  let reserveToken = process.env.RESERVE_TOKEN;
+  let uniswap_factory = process.env.UNISWAP_FACYORY;
+  let oraclePoster = process.env.ORACLE_POSTER;
+  let zeroAddress = '0x0000000000000000000000000000000000000000'
   let yuan = await YUANProxy.deployed();
 
-  await deployer.deploy(Oracle, '0x6e8e3697Ff41d021D4D7a988c3CDF504cd6BD26f', "50000000000000000")
+  await deployer.deploy(Oracle, oraclePoster, "50000000000000000")
   await deployer.deploy(YUANReserves, reserveToken, YUANProxy.address);
   await deployer.deploy(YUANRebaser,
       YUANProxy.address,
       reserveToken,
       uniswap_factory,
-      [YUANReserves.address, '0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
-      "0x0000000000000000000000000000000000000000",
+      [YUANReserves.address, zeroAddress, zeroAddress],
+      zeroAddress,
       0,
-      Oracle.address
+      // Oracle.address
   );
 
   let rebase = new web3.eth.Contract(YUANRebaser.abi, YUANRebaser.address);
