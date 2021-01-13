@@ -835,7 +835,7 @@ contract YUANRebaserV2 {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"9b025805045f6da539a4926f67307a9b0ab5aaccc42d3f14aaea0776a5b727ac" // init code hash
+                        hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash
                     )
                 )
             )

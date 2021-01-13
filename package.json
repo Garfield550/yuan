@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "YUAN protocol repo",
   "main": "index.js",
+  "engines": {
+    "node": "^12.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "truffle compile",
     "deploy:test": "truffle test --network testnet",
-    "migrate": "truffle migrate --network testnet",
+    "migrate:test": "truffle migrate --network testnet",
+    "migrate": "truffle migrate",
     "format": "prettier --write contracts/**/*.sol",
     "flatten": "truffle-flattener"
   },

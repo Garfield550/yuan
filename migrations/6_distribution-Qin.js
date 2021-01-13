@@ -17,9 +17,9 @@ const YUAN_ETHUSDxPool = artifacts.require("YUANETHUSDxPool");
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  await Promise.all([
-    deployDistribution(deployer, network, accounts),
-  ]);
+  // await Promise.all([
+  //   deployDistribution(deployer, network, accounts),
+  // ]);
 }
 
 module.exports = migration;

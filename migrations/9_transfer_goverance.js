@@ -5,20 +5,26 @@ var fs = require('fs')
 
 // Protocol
 const YUANProxy = artifacts.require("YUANDelegator");
+const eETHProxy = artifacts.require("eETHDelegator");
 
 // deployed third
-const YUANReserves = artifacts.require("YUANReserves");
-const YUANRebaser = artifacts.require("YUANRebaser2");
+const YUANReserves = artifacts.require("YUANReservesV2");
+const YUANRebaser = artifacts.require("YUANRebaser");
+const eETHReserves = artifacts.require("eETHReserves");
+const YUANRebaserV2 = artifacts.require("YUANRebaserV2"); // eETHRebaser
 
+// deployed fourth
 const Gov = artifacts.require("GovernorAlpha");
 const Timelock = artifacts.require("Timelock");
+const eETHGov = artifacts.require("eETHGovernorAlphaV2");
+const eETHTimelock = artifacts.require("eETHTimelock");
 
 
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
   await Promise.all([
-    deployDistribution(deployer, network, accounts),
+    deployDistribution(deployer),
   ]);
 }
 
@@ -27,19 +33,26 @@ module.exports = migration;
 // ============ Deploy Functions ============
 
 
-async function deployDistribution(deployer, network, accounts) {
-  console.log(network)
-  let YUAN = await YUANProxy.deployed();
-  let yReserves = await YUANReserves.deployed()
-  let yRebaser = await YUANRebaser.deployed()
-  let tl = await Timelock.deployed();
-  let gov = await Gov.deployed();
+async function deployDistribution(deployer) {
+  const YUAN = await YUANProxy.deployed();
+  const yReserves = await YUANReserves.deployed()
+  const yRebaser = await YUANRebaser.deployed()
+  const tl = await Timelock.deployed();
+  const gov = await Gov.deployed();
+  const eETH = await eETHProxy.deployed();
+  const eETHReserve = await eETHReserves.deployed();
+  const eETHRebaser = await YUANRebaserV2.deployed();
+  const eETHTL = await eETHTimelock.deployed();
+  const eETHGovV2 = await eETHGov.deployed();
 
 
   await Promise.all([
     YUAN._setPendingGov(Timelock.address),
     yReserves._setPendingGov(Timelock.address),
     yRebaser._setPendingGov(Timelock.address),
+    eETH._setPendingGov(eETHTimelock.address),
+    eETHReserve._setPendingGov(eETHTimelock.address),
+    eETHRebaser._setPendingGov(eETHTimelock.address),
   ]);
 
   await Promise.all([
@@ -66,9 +79,34 @@ async function deployDistribution(deployer, network, accounts) {
         "0x",
         0
       ),
+      // eETH
+      eETHTL.executeTransaction(
+        eETHProxy.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
+      eETHTL.executeTransaction(
+        eETHReserve.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
+      eETHTL.executeTransaction(
+        eETHRebaser.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
   ]);
   await tl.setPendingAdmin(Gov.address);
   await gov.__acceptAdmin();
   await gov.__abdicate();
-
+  // eETH
+  await eETHTL.setPendingAdmin(eETHGovV2.address);
+  await eETHGovV2.__acceptAdmin();
+  await eETHGovV2.__abdicate();
 }

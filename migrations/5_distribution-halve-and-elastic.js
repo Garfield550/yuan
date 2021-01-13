@@ -20,9 +20,9 @@ const YUAN_ETHAMPLPool = artifacts.require("YUANETHAMPLPool");
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  await Promise.all([
-    deployDistribution(deployer, network, accounts),
-  ]);
+  // await Promise.all([
+  //   deployDistribution(deployer, network, accounts),
+  // ]);
 }
 
 module.exports = migration;
