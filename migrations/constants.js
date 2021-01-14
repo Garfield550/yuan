@@ -20,7 +20,7 @@ const tokens = {
     reserveToken: {
       mainnet: "",
       testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
-      kovan: "0x5eCA15B12d959dfcf9c71c59F8B467Eb8c6efD0b" // WETH
+      kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C" // WETH
     },
     uniswapFactory: {
       mainnet: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",

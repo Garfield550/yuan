@@ -13,7 +13,9 @@
     "migrate:test": "truffle migrate --network testnet",
     "migrate": "truffle migrate",
     "format": "prettier --write contracts/**/*.sol",
-    "flatten": "truffle-flattener"
+    "flatten": "truffle-flattener",
+    "verify:kovan": "truffle run verify --network kovan",
+    "verify": "truffle run verify"
   },
   "author": "",
   "license": "ISC",
