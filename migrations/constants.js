@@ -3,7 +3,7 @@ const tokens = {
     reserveToken: {
       mainnet: "0xeb269732ab75A6fD61Ea60b06fE994cD32a83549",
       testnet: "0xB29A26df2702B10BFbCf8cd52914Ad1fc99A4540",
-      kovan: ""
+      kovan: "0xFe1F0C31F4f477569622E284baBa0a6F030c6ea6"
     },
     uniswapFactory: {
       mainnet: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
