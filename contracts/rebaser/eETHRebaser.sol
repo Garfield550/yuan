@@ -13,7 +13,7 @@ interface BAL {
     function gulp(address token) external;
 }
 
-contract YUANRebaserV2 {
+contract eETHRebaser {
     using SafeMath for uint256;
 
     modifier onlyGov() {
@@ -126,8 +126,11 @@ contract YUANRebaserV2 {
     /// @notice Reserves contract percentages
     uint256[3] public rebaseMintPercs;
 
-    /// @notice pair for reserveToken <> YUAN
+    /// @notice pair for reserveToken <> eToken, e.g. eETH/YUAN
     address public uniswap_pair;
+
+    /// @notice pair for ETH/BTC <> eToken, e.g. eETH/ETH
+    address public uniswapTwapPair;
 
     /// @notice list of uniswap pairs to sync
     address[] public uniSyncPairs;
@@ -157,6 +160,9 @@ contract YUANRebaserV2 {
     /// @notice Whether or not this token is first in uniswap YUAN<>Reserve pair
     bool public isToken0;
 
+    /// @notice Whether or not this token is first in uniswap eToken<>ETH/BTC pair
+    bool public isTwapToken0;
+
     uint256 public constant BASE = 10**18;
 
     uint256 public constant MAX_SLIPPAGE_PARAM = 1180339 * 10**11; // max ~20% market impact
@@ -169,12 +175,14 @@ contract YUANRebaserV2 {
         address uniswap_factory,
         address[3] memory reservesContracts_,
         address public_goods_,
-        uint256 public_goods_perc_
+        uint256 public_goods_perc_,
+        address ethAddress_
     ) public {
         minRebaseTimeIntervalSec = 12 hours;
         rebaseWindowOffsetSec = 7200; // 10am/10pm UTC+8 rebases
 
         (address token0, address token1) = sortTokens(yuanAddress_, reserveToken_);
+        (address twapToken0, address twapToken1) = sortTokens(yuanAddress_, ethAddress_);
 
         // used for interacting with uniswap
         if (token0 == yuanAddress_) {
@@ -182,10 +190,18 @@ contract YUANRebaserV2 {
         } else {
             isToken0 = false;
         }
+        if (twapToken0 == yuanAddress_) {
+            isTwapToken0 = true;
+        } else {
+            isTwapToken0 = false;
+        }
         // uniswap YUAN<>Reserve pair
         uniswap_pair = pairFor(uniswap_factory, token0, token1);
+        // Uniswap eToken<>ETH/BTC pair
+        uniswapTwapPair = pairFor(uniswap_factory, twapToken0, twapToken1);
 
         uniSyncPairs.push(uniswap_pair);
+        uniSyncPairs.push(uniswapTwapPair);
 
         // Reserves contracts are mutable
         reservesContracts[0] = reservesContracts_[0]; // Treasury
@@ -342,7 +358,7 @@ contract YUANRebaserV2 {
      */
     function init_twap() public {
         require(timeOfTWAPInit == 0, "already activated");
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         require(blockTimestamp > 0, "no trades");
         blockTimestampLast = blockTimestamp;
         priceCumulativeLast = priceCumulative;
@@ -663,7 +679,7 @@ contract YUANRebaserV2 {
      *      to be able to manipulate this during that time period of highest vuln.
      */
     function getTWAP() internal returns (uint256) {
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow
@@ -692,7 +708,7 @@ contract YUANRebaserV2 {
      *
      */
     function getCurrentTWAP() public view returns (uint256) {
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow

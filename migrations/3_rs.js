@@ -13,7 +13,7 @@ const Oracle = artifacts.require("PriceOracle");
 const YUANReserves = artifacts.require("YUANReservesV2");
 const YUANRebaser = artifacts.require("YUANRebaser");
 const eETHReserves = artifacts.require("eETHReserves");
-const YUANRebaserV2 = artifacts.require("YUANRebaserV2"); // eETHRebaser
+const eETHRebaser = artifacts.require("eETHRebaser"); // eETHRebaser
 
 // ============ Main Migration ============
 
@@ -54,25 +54,29 @@ async function deployRs(deployer, network) {
   await reserves._setRebaser(YUANRebaser.address);
 
   // eETH
-  const reserveTokenETH = tokens.eETH.reserveToken[network]; // ETH
+  const reserveTokenETH = tokens.eETH.reserveToken[network]; // YUAN
   const uniswapFactoryETH = tokens.eETH.uniswapFactory[network];
+  const ethToken = tokens.eETH.ethToken[network]; // WETH
   const eETH = await eETHProxy.deployed();
 
   await deployer.deploy(eETHReserves, reserveTokenETH, eETHProxy.address);
-  await deployer.deploy(YUANRebaserV2,
+  await deployer.deploy(eETHRebaser,
     eETHProxy.address,
-    reserveTokenETH,
+    reserveTokenETH, // If you want to fully deployed contracts that include YUAN, you can use YUANProxy.address
     uniswapFactoryETH,
     [eETHReserves.address, ZERO, ZERO],
     ZERO,
-    0
+    0,
+    ethToken
   );
 
-  const rebaseETH = new web3.eth.Contract(YUANRebaserV2.abi, YUANRebaserV2.address);
+  const rebaseETH = new web3.eth.Contract(eETHRebaser.abi, eETHRebaser.address);
   const pairETH = await rebaseETH.methods.uniswap_pair().call();
-  console.log("eETH Uniswap pair is:", pairETH); // eETH/ETH
+  const twapPairETH = await rebaseETH.methods.uniswapTwapPair().call();
+  console.log("eETH Uniswap pair is:", pairETH); // eETH/YUAN
+  console.log("eETH Uniswap TWAP pair is:", twapPairETH); // eETH/ETH
 
-  await eETH._setRebaser(YUANRebaserV2.address);
+  await eETH._setRebaser(eETHRebaser.address);
   const reservesETH = await eETHReserves.deployed();
-  await reservesETH._setRebaser(YUANRebaserV2.address);
+  await reservesETH._setRebaser(eETHRebaser.address);
 }

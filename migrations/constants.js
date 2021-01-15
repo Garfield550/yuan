@@ -17,10 +17,10 @@ const tokens = {
     }
   },
   eETH: {
-    reserveToken: {
-      mainnet: "",
-      testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
-      kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C" // WETH
+    reserveToken: { // YUAN Token
+      mainnet: "0x4A3e164684812DfB684AC36457E7fA805087c68E",
+      testnet: "0x25ecDD98D8AfE1f18ED6B5f0E017813Db59a2F0b",
+      kovan: "0x08c89ADe94f830BA094529B782576e8525FB93d6",
     },
     uniswapFactory: {
       mainnet: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
@@ -31,6 +31,11 @@ const tokens = {
       mainnet: "0x6e8e3697Ff41d021D4D7a988c3CDF504cd6BD26f",
       testnet: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715",
       kovan: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715"
+    },
+    ethToken: {
+      mainnet: "",
+      testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
+      kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C" // WETH
     }
   }
 }
