@@ -25,7 +25,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 import "../lib/SafeMath.sol";
 
-contract eBTCTimelock {
+contract eETHTimelock {
     using SafeMath for uint256;
 
     /// @notice An event emitted when the timelock admin changes

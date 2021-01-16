@@ -6,6 +6,8 @@ const YUANImplementation = artifacts.require("YUANDelegate");
 const YUANProxy = artifacts.require("YUANDelegator");
 const eETHImplementation = artifacts.require("eETHDelegate");
 const eETHProxy = artifacts.require("eETHDelegator");
+const eBTCImplementation = artifacts.require("eBTCDelegate");
+const eBTCProxy = artifacts.require("eBTCDelegator");
 
 // ============ Main Migration ============
 
@@ -37,6 +39,16 @@ async function deployToken(deployer) {
     18,
     "2240000000000000000000000",
     eETHImplementation.address,
+    "0x"
+  );
+  // eBTC
+  await deployer.deploy(eBTCImplementation);
+  await deployer.deploy(eBTCProxy,
+    "eBTC",
+    "eBTC",
+    18,
+    "9876543210000000000000000",
+    eBTCImplementation.address,
     "0x"
   );
 }

@@ -11,7 +11,7 @@ const eETHProxy = artifacts.require("eETHDelegator");
 const YUANReserves = artifacts.require("YUANReservesV2");
 const YUANRebaser = artifacts.require("YUANRebaser");
 const eETHReserves = artifacts.require("eETHReserves");
-const YUANRebaserV2 = artifacts.require("YUANRebaserV2"); // eETHRebaser
+const YUANRebaserV2 = artifacts.require("eETHRebaser"); // eETHRebaser
 
 // deployed fourth
 const Gov = artifacts.require("GovernorAlpha");

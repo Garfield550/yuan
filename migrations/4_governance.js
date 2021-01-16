@@ -6,6 +6,7 @@
 // const YUANImplementation = artifacts.require("YUANDelegate");
 const YUANProxy = artifacts.require("YUANDelegator");
 const eETHProxy = artifacts.require("eETHDelegator");
+const eBTCProxy = artifacts.require("eBTCDelegator");
 
 // Rs
 // deployed second
@@ -19,6 +20,8 @@ const Gov = artifacts.require("GovernorAlpha");
 const Timelock = artifacts.require("Timelock");
 const eETHGov = artifacts.require("eETHGovernorAlphaV2");
 const eETHTimelock = artifacts.require("eETHTimelock");
+const eBTCGov = artifacts.require("eBTCGovernorAlphaV2");
+const eBTCTimelock = artifacts.require("eBTCTimelock");
 
 
 // ============ Main Migration ============
@@ -49,5 +52,11 @@ async function deployGovernance(deployer) {
   await deployer.deploy(eETHGov,
     eETHTimelock.address,
     eETHProxy.address
+  );
+  // eBTC
+  await deployer.deploy(eBTCTimelock);
+  await deployer.deploy(eBTCGov,
+    eBTCTimelock.address,
+    eBTCProxy.address
   );
 }
