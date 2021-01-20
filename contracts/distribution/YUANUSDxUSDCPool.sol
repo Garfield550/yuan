@@ -692,7 +692,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0x460067f15e9B461a5F4c482E80217A2F45269385);
+    IERC20 public uni_lp = IERC20(0x7291c312E6333e58E2f1264162435429bc09EC4B);
 
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
@@ -728,7 +728,7 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
 
-    uint256 public starttime = 1604545200; // 2020/11/5 11:0:0 (UTC+8)
+    uint256 public starttime = 1611064240; // Tuesday, January 19, 2021 9:50:40 PM (UTC+8)
     uint256 public periodFinish = 0;
     uint256 public initialRewardRate = 0;
     uint256 public lastUpdateTime;
