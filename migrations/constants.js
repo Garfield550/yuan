@@ -57,7 +57,7 @@ const tokens = {
     btcToken: { // WBTC Token
       mainnet: "",
       testnet: "",
-      kovan: "0xe0C9275E44Ea80eF17579d33c55136b7DA269aEb"
+      kovan: "0x395089827f23d4605c1bce4a56663657d8e8b104"
     }
   }
 }

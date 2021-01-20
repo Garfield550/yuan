@@ -719,7 +719,12 @@ contract LPTokenWrapper {
 }
 
 contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
-    IERC20 public yuan = IERC20(0x4A3e164684812DfB684AC36457E7fA805087c68E);
+    // IERC20 public yuan = IERC20(0x4A3e164684812DfB684AC36457E7fA805087c68E);
+    address private _eBTC = address(0x53299D51Da54C8a4813Ce91a173c002dfe52fFC6);
+    address private _eETH = address(0x47FBb1Bda9E62bb11e53eB98E50003a1D0198e93);
+    IERC20 public eBTC = IERC20(_eBTC);
+    IERC20 public eETH = IERC20(_eETH);
+
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
 
@@ -800,9 +805,14 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            uint256 scalingFactor = YUAN(address(yuan)).yuansScalingFactor();
-            uint256 trueReward = reward.mul(scalingFactor).div(10**18);
-            yuan.safeTransfer(msg.sender, trueReward);
+            uint256 eBTCScalingFactor = YUAN(_eBTC).yuansScalingFactor();
+            uint256 eBTCTrueReward = reward.mul(eBTCScalingFactor).div(10**18);
+            eBTC.safeTransfer(msg.sender, eBTCTrueReward);
+
+            uint256 eETHScalingFactor = YUAN(_eETH).yuansScalingFactor();
+            uint256 eETHTrueReward = reward.mul(eETHScalingFactor).div(10**18);
+            eETH.safeTransfer(msg.sender, eETHTrueReward);
+
             emit RewardPaid(msg.sender, reward);
         }
     }
