@@ -109,7 +109,7 @@ contract eBTCRebaser {
     bool public rebasingActive;
 
     /// @notice delays rebasing activation to facilitate liquidity
-    uint256 public constant rebaseDelay = 9 days;
+    uint256 public constant rebaseDelay = 1 hours;
 
     /// @notice Time of TWAP initialization
     uint256 public timeOfTWAPInit;
@@ -178,8 +178,8 @@ contract eBTCRebaser {
         uint256 public_goods_perc_,
         address ethAddress_
     ) public {
-        minRebaseTimeIntervalSec = 12 hours;
-        rebaseWindowOffsetSec = 7200; // 10am/10pm UTC+8 rebases
+        minRebaseTimeIntervalSec = 1800; // 30 minutes
+        rebaseWindowOffsetSec = 0; // 10am/10pm UTC+8 rebases
 
         (address token0, address token1) = sortTokens(yuanAddress_, reserveToken_);
         (address twapToken0, address twapToken1) = sortTokens(yuanAddress_, ethAddress_);
@@ -221,7 +221,7 @@ contract eBTCRebaser {
         maxSlippageFactor = 5409258 * 10**10;
 
         // 1 YYCRV
-        targetRate = BASE;
+        targetRate = 10**8;
 
         // twice daily rebase, with targeting reaching peg in 5 days
         rebaseLag = 10;
@@ -234,8 +234,8 @@ contract eBTCRebaser {
         // 5%
         deviationThreshold = 5 * 10**16;
 
-        // 60 minutes
-        rebaseWindowLengthSec = 60 * 60;
+        // 20 minutes
+        rebaseWindowLengthSec = 10 * 60;
 
         // Changed in deployment scripts to facilitate protocol initiation
         gov = msg.sender;

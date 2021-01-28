@@ -1,3 +1,5 @@
+const Web3 = require("web3");
+
 const tokens = {
   yuan: {
     reserveToken: { // USDx Token
@@ -32,7 +34,7 @@ const tokens = {
       testnet: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715",
       kovan: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715"
     },
-    ethToken: { // WETH Token
+    ETHToken: { // WETH Token
       mainnet: "",
       testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
       kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C"
@@ -64,7 +66,29 @@ const tokens = {
 
 const ZERO = "0x0000000000000000000000000000000000000000"
 
+const web3 = new Web3();
+// USDx-USDC: 600,000
+const SIX_HUNDRED = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(600));
+// YUAN-ETH: 200,000
+const TWO_HUNDRED = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(200));
+// USDx-YUAN: 1,200,000
+const ONE_THOUSAND_TWO_HUNDRED = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(1200));
+// USDC-ETH, DAI-ETH, USDT-ETH, USDx-ETH, YAM-ETH, AMPL-ETH, UNI-ETH, YFI-ETH,
+// DF-ETH, YFII-ETH, LINK-ETH, BAND-ETH: 20,000
+const TWENTY = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(20));
+// Incentive YUAN-USDx: 40w * 30% => 120,000
+const ONE_HUNDRED_TWENTY = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(120));
+// Incentive YUAN-ETH: 40w * 70% => 280,000
+const TWO_HUNDRED_EIGHTY = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(280));
+
+
 module.exports = {
   ZERO,
-  tokens
+  tokens,
+  SIX_HUNDRED,
+  TWO_HUNDRED,
+  ONE_THOUSAND_TWO_HUNDRED,
+  TWENTY,
+  ONE_HUNDRED_TWENTY,
+  TWO_HUNDRED_EIGHTY
 }
