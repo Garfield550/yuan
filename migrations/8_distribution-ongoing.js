@@ -1,4 +1,3 @@
-const { artifacts } = require('hardhat');
 const { ONE_HUNDRED_TWENTY, TWO_HUNDRED_EIGHTY } = require('./constants');
 
 // ============ Contracts ============
@@ -94,6 +93,11 @@ async function deployDistribution(deployer, network, accounts) {
       //   TWO_HUNDRED_EIGHTY.toString(),
       //   ONE_YEAR
       // ).send({ from: accounts[0]}),
+      // incentive_distribution.addRecipientAndSetReward(
+      //   eBTCYUANIncentivizer.address,
+      //   TWO_HUNDRED_EIGHTY.toString(),
+      //   ONE_YEAR
+      // ),
       eBTCRD.addRecipientAndSetReward(
         eBTCYUANIncentivizer.address,
         TWO_HUNDRED_EIGHTY.toString(),
