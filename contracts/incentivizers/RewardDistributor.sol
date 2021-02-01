@@ -45,10 +45,7 @@ pragma solidity 0.5.15;
 contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -104,10 +101,7 @@ contract Ownable is Context {
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      */
     function _transferOwnership(address newOwner) internal {
-        require(
-            newOwner != address(0),
-            "Ownable: new owner is the zero address"
-        );
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
@@ -139,9 +133,7 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
+    function transfer(address recipient, uint256 amount) external returns (bool);
 
     function mint(address account, uint256 amount) external;
 
@@ -152,10 +144,7 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -200,22 +189,16 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 pragma solidity 0.5.15;
 
 interface IRewardDistributionRecipient {
-    function notifyRewardAmountAndDuration(uint256 rewardRate, uint256 duration)
-        external;
+    function notifyRewardAmountAndDuration(uint256 rewardRate, uint256 duration) external;
 }
 
 contract RewardDistributor is Ownable {
-
     IERC20 public yuan;
 
     mapping(address => bool) public isRecipient;
@@ -234,10 +217,7 @@ contract RewardDistributor is Ownable {
     ) public onlyOwner {
         require(isRecipient[recipient], "recipient has not been added");
 
-        IRewardDistributionRecipient(recipient).notifyRewardAmountAndDuration(
-            reward,
-            duration
-        );
+        IRewardDistributionRecipient(recipient).notifyRewardAmountAndDuration(reward, duration);
     }
 
     function transferReward(address to, uint256 value) external {
