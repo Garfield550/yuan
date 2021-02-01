@@ -48,10 +48,7 @@ contract YUANReserves {
 
     function _setRebaser(address rebaser_) external onlyGov {
         address oldRebaser = rebaser;
-        YUANTokenInterface(yuanAddress).decreaseAllowance(
-            oldRebaser,
-            uint256(-1)
-        );
+        YUANTokenInterface(yuanAddress).decreaseAllowance(oldRebaser, uint256(-1));
         rebaser = rebaser_;
         YUANTokenInterface(yuanAddress).approve(rebaser_, uint256(-1));
         emit NewRebaser(oldRebaser, rebaser_);
@@ -78,10 +75,7 @@ contract YUANReserves {
     }
 
     /// @notice Moves all tokens to a new reserve contract
-    function migrateReserves(address newReserve, address[] memory tokens)
-        public
-        onlyGov
-    {
+    function migrateReserves(address newReserve, address[] memory tokens) public onlyGov {
         for (uint256 i = 0; i < tokens.length; i++) {
             IERC20 token = IERC20(tokens[i]);
             uint256 bal = token.balanceOf(address(this));

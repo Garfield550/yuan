@@ -48,10 +48,7 @@ contract eBTCReserves {
 
     function _setRebaser(address rebaser_) external onlyGov {
         address oldRebaser = rebaser;
-        YUANTokenInterface(yuanAddress).decreaseAllowance(
-            oldRebaser,
-            uint256(-1)
-        );
+        YUANTokenInterface(yuanAddress).decreaseAllowance(oldRebaser, uint256(-1));
         rebaser = rebaser_;
         YUANTokenInterface(yuanAddress).approve(rebaser_, uint256(-1));
         emit NewRebaser(oldRebaser, rebaser_);
@@ -78,10 +75,7 @@ contract eBTCReserves {
     }
 
     /// @notice Moves all tokens to a new reserve contract
-    function migrateReserves(address newReserve, address[] memory tokens)
-        public
-        onlyGov
-    {
+    function migrateReserves(address newReserve, address[] memory tokens) public onlyGov {
         for (uint256 i = 0; i < tokens.length; i++) {
             IERC20 token = IERC20(tokens[i]);
             uint256 bal = token.balanceOf(address(this));
@@ -96,10 +90,7 @@ contract eBTCReserves {
         address[] memory whos,
         uint256[] memory amounts,
         address[] memory tokens
-    )
-        public
-        onlyGov
-    {
+    ) public onlyGov {
         require(whos.length == amounts.length, "Reserves::whitelist: !len parity 1");
         require(amounts.length == tokens.length, "Reserves::whitelist: !len parity 2");
         for (uint256 i = 0; i < whos.length; i++) {
@@ -112,10 +103,7 @@ contract eBTCReserves {
         address[] memory whos,
         uint256[] memory amounts,
         address[] memory tokens
-    )
-        public
-        onlyGov
-    {
+    ) public onlyGov {
         require(whos.length == amounts.length, "Reserves::whitelist: !len parity 1");
         require(amounts.length == tokens.length, "Reserves::whitelist: !len parity 2");
         for (uint256 i = 0; i < whos.length; i++) {
@@ -124,11 +112,7 @@ contract eBTCReserves {
     }
 
     /// @notice Gets the current amount of reserves token held by this contract
-    function reserves()
-        public
-        view
-        returns (uint256)
-    {
+    function reserves() public view returns (uint256) {
         return IERC20(reserveToken).balanceOf(address(this));
     }
 }
