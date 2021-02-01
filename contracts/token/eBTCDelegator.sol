@@ -54,26 +54,16 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
         bool allowResign,
         bytes memory becomeImplementationData
     ) public {
-        require(
-            msg.sender == gov,
-            "YUANDelegator::_setImplementation: Caller must be gov"
-        );
+        require(msg.sender == gov, "YUANDelegator::_setImplementation: Caller must be gov");
 
         if (allowResign) {
-            delegateToImplementation(
-                abi.encodeWithSignature("_resignImplementation()")
-            );
+            delegateToImplementation(abi.encodeWithSignature("_resignImplementation()"));
         }
 
         address oldImplementation = implementation;
         implementation = implementation_;
 
-        delegateToImplementation(
-            abi.encodeWithSignature(
-                "_becomeImplementation(bytes)",
-                becomeImplementationData
-            )
-        );
+        delegateToImplementation(abi.encodeWithSignature("_becomeImplementation(bytes)", becomeImplementationData));
 
         emit NewImplementation(oldImplementation, implementation);
     }
@@ -141,10 +131,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param spender The address which will spend the funds.
      * @param addedValue The amount of tokens to increase the allowance by.
      */
-    function increaseAllowance(address spender, uint256 addedValue)
-        external
-        returns (bool)
-    {
+    function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
         spender;
         addedValue; // Shh
         delegateAndReturn();
@@ -171,10 +158,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param spender The address which will spend the funds.
      * @param subtractedValue The amount of tokens to decrease the allowance by.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        external
-        returns (bool)
-    {
+    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
         spender;
         subtractedValue; // Shh
         delegateAndReturn();
@@ -206,11 +190,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param spender The address of the account which may transfer tokens
      * @return The number of tokens allowed to be spent (-1 means infinite)
      */
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256)
-    {
+    function allowance(address owner, address spender) external view returns (uint256) {
         owner;
         spender; // Shh
         delegateToViewAndReturn();
@@ -258,11 +238,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param owner The address of the account to query
      * @return The number of underlying tokens owned by `owner`
      */
-    function balanceOfUnderlying(address owner)
-        external
-        view
-        returns (uint256)
-    {
+    function balanceOfUnderlying(address owner) external view returns (uint256) {
         owner; // Shh
         delegateToViewAndReturn();
     }
@@ -303,11 +279,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
         delegateAndReturn();
     }
 
-    function getPriorVotes(address account, uint256 blockNumber)
-        external
-        view
-        returns (uint256)
-    {
+    function getPriorVotes(address account, uint256 blockNumber) external view returns (uint256) {
         account;
         blockNumber;
         delegateToViewAndReturn();
@@ -357,10 +329,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param data The raw data to delegatecall
      * @return The returned bytes from the delegatecall
      */
-    function delegateTo(address callee, bytes memory data)
-        internal
-        returns (bytes memory)
-    {
+    function delegateTo(address callee, bytes memory data) internal returns (bytes memory) {
         (bool success, bytes memory returnData) = callee.delegatecall(data);
         assembly {
             if eq(success, 0) {
@@ -376,10 +345,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param data The raw data to delegatecall
      * @return The returned bytes from the delegatecall
      */
-    function delegateToImplementation(bytes memory data)
-        public
-        returns (bytes memory)
-    {
+    function delegateToImplementation(bytes memory data) public returns (bytes memory) {
         return delegateTo(implementation, data);
     }
 
@@ -390,14 +356,9 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @param data The raw data to delegatecall
      * @return The returned bytes from the delegatecall
      */
-    function delegateToViewImplementation(bytes memory data)
-        public
-        view
-        returns (bytes memory)
-    {
-        (bool success, bytes memory returnData) = address(this).staticcall(
-            abi.encodeWithSignature("delegateToImplementation(bytes)", data)
-        );
+    function delegateToViewImplementation(bytes memory data) public view returns (bytes memory) {
+        (bool success, bytes memory returnData) =
+            address(this).staticcall(abi.encodeWithSignature("delegateToImplementation(bytes)", data));
         assembly {
             if eq(success, 0) {
                 revert(add(returnData, 0x20), returndatasize)
@@ -407,9 +368,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
     }
 
     function delegateToViewAndReturn() private view returns (bytes memory) {
-        (bool success, ) = address(this).staticcall(
-            abi.encodeWithSignature("delegateToImplementation(bytes)", msg.data)
-        );
+        (bool success, ) = address(this).staticcall(abi.encodeWithSignature("delegateToImplementation(bytes)", msg.data));
 
         assembly {
             let free_mem_ptr := mload(0x40)
@@ -447,10 +406,7 @@ contract eBTCDelegator is YUANTokenInterface, YUANDelegatorInterface {
      * @dev It returns to the external caller whatever the implementation returns or forwards reverts
      */
     function() external payable {
-        require(
-            msg.value == 0,
-            "YUANDelegator:fallback: cannot send value to fallback"
-        );
+        require(msg.value == 0, "YUANDelegator:fallback: cannot send value to fallback");
 
         // delegate all other functions to current implementation
         delegateAndReturn();

@@ -25,10 +25,7 @@ contract YUANDelegatorInterface is YUANDelegationStorage {
     /**
      * @notice Emitted when implementation is changed
      */
-    event NewImplementation(
-        address oldImplementation,
-        address newImplementation
-    );
+    event NewImplementation(address oldImplementation, address newImplementation);
 
     /**
      * @notice Called by the gov to update the implementation of the delegator
@@ -76,10 +73,7 @@ contract YUANDelegate is YUAN, YUANDelegateInterface {
             implementation = address(0);
         }
 
-        require(
-            msg.sender == gov,
-            "only the gov may call _becomeImplementation"
-        );
+        require(msg.sender == gov, "only the gov may call _becomeImplementation");
     }
 
     /**
@@ -91,9 +85,6 @@ contract YUANDelegate is YUAN, YUANDelegateInterface {
             implementation = address(0);
         }
 
-        require(
-            msg.sender == gov,
-            "only the gov may call _resignImplementation"
-        );
+        require(msg.sender == gov, "only the gov may call _resignImplementation");
     }
 }
