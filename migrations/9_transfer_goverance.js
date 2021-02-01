@@ -16,8 +16,6 @@ const YUANRebaserV2 = artifacts.require("eETHRebaser"); // eETHRebaser
 // deployed fourth
 const Gov = artifacts.require("GovernorAlpha");
 const Timelock = artifacts.require("Timelock");
-const eETHGov = artifacts.require("eETHGovernorAlphaV2");
-const eETHTimelock = artifacts.require("eETHTimelock");
 
 
 // ============ Main Migration ============
@@ -42,17 +40,15 @@ async function deployDistribution(deployer) {
   const eETH = await eETHProxy.deployed();
   const eETHReserve = await eETHReserves.deployed();
   const eETHRebaser = await YUANRebaserV2.deployed();
-  const eETHTL = await eETHTimelock.deployed();
-  const eETHGovV2 = await eETHGov.deployed();
 
 
   await Promise.all([
     YUAN._setPendingGov(Timelock.address),
     yReserves._setPendingGov(Timelock.address),
     yRebaser._setPendingGov(Timelock.address),
-    eETH._setPendingGov(eETHTimelock.address),
-    eETHReserve._setPendingGov(eETHTimelock.address),
-    eETHRebaser._setPendingGov(eETHTimelock.address),
+    eETH._setPendingGov(Timelock.address),
+    eETHReserve._setPendingGov(Timelock.address),
+    eETHRebaser._setPendingGov(Timelock.address),
   ]);
 
   await Promise.all([
@@ -80,21 +76,21 @@ async function deployDistribution(deployer) {
         0
       ),
       // eETH
-      eETHTL.executeTransaction(
+      tl.executeTransaction(
         eETHProxy.address,
         0,
         "_acceptGov()",
         "0x",
         0
       ),
-      eETHTL.executeTransaction(
+      tl.executeTransaction(
         eETHReserve.address,
         0,
         "_acceptGov()",
         "0x",
         0
       ),
-      eETHTL.executeTransaction(
+      tl.executeTransaction(
         eETHRebaser.address,
         0,
         "_acceptGov()",
@@ -105,8 +101,4 @@ async function deployDistribution(deployer) {
   await tl.setPendingAdmin(Gov.address);
   await gov.__acceptAdmin();
   await gov.__abdicate();
-  // eETH
-  await eETHTL.setPendingAdmin(eETHGovV2.address);
-  await eETHGovV2.__acceptAdmin();
-  await eETHGovV2.__abdicate();
 }
