@@ -38,41 +38,23 @@ contract YUANRebaser {
     }
 
     /// @notice an event emitted when a transaction fails
-    event TransactionFailed(
-        address indexed destination,
-        uint256 index,
-        bytes data
-    );
+    event TransactionFailed(address indexed destination, uint256 index, bytes data);
 
     /// @notice an event emitted when maxSlippageFactor is changed
-    event NewMaxSlippageFactor(
-        uint256 oldSlippageFactor,
-        uint256 newSlippageFactor
-    );
+    event NewMaxSlippageFactor(uint256 oldSlippageFactor, uint256 newSlippageFactor);
 
     /// @notice an event emitted when deviationThreshold is changed
-    event NewDeviationThreshold(
-        uint256 oldDeviationThreshold,
-        uint256 newDeviationThreshold
-    );
+    event NewDeviationThreshold(uint256 oldDeviationThreshold, uint256 newDeviationThreshold);
 
     /**
      * @notice Sets the treasury mint percentage of rebase
      */
-    event NewRebaseMintPercent(
-        uint256 reserveIndex,
-        uint256 oldRebaseMintPerc,
-        uint256 newRebaseMintPerc
-    );
+    event NewRebaseMintPercent(uint256 reserveIndex, uint256 oldRebaseMintPerc, uint256 newRebaseMintPerc);
 
     /**
      * @notice Sets the reserve contract
      */
-    event NewReserveContract(
-        uint256 reserveIndex,
-        address oldReserveContract,
-        address newReserveContract
-    );
+    event NewReserveContract(uint256 reserveIndex, address oldReserveContract, address newReserveContract);
 
     /**
      * @notice Sets the price oracle
@@ -82,12 +64,7 @@ contract YUANRebaser {
     /**
      * @notice Sets the reserve contract
      */
-    event TreasuryIncreased(
-        uint256 reservesAdded,
-        uint256 yuansSold,
-        uint256 yuansFromReserves,
-        uint256 yuansToReserves
-    );
+    event TreasuryIncreased(uint256 reservesAdded, uint256 yuansSold, uint256 yuansFromReserves, uint256 yuansToReserves);
 
     /**
      * @notice Event emitted when pendingGov is changed
@@ -210,10 +187,7 @@ contract YUANRebaser {
         minRebaseTimeIntervalSec = 12 hours;
         rebaseWindowOffsetSec = 7200; // 10am/10pm UTC+8 rebases
 
-        (address token0, address token1) = sortTokens(
-            yuanAddress_,
-            reserveToken_
-        );
+        (address token0, address token1) = sortTokens(yuanAddress_, reserveToken_);
 
         // used for interacting with uniswap
         if (token0 == yuanAddress_) {
@@ -289,10 +263,7 @@ contract YUANRebaser {
     @notice Adds pairs to sync
     *
     */
-    function addSyncPairs(
-        address[] memory uniSyncPairs_,
-        address[] memory balGulpPairs_
-    ) public onlyGov {
+    function addSyncPairs(address[] memory uniSyncPairs_, address[] memory balGulpPairs_) public onlyGov {
         for (uint256 i = 0; i < uniSyncPairs_.length; i++) {
             uniSyncPairs.push(uniSyncPairs_[i]);
         }
@@ -338,25 +309,15 @@ contract YUANRebaser {
     @param rebaseMintPerc_ the new rebase mint percentage
     *
     */
-    function setRebaseMintPerc(uint256 reserveIndex_, uint256 rebaseMintPerc_)
-        public
-        onlyGov
-    {
+    function setRebaseMintPerc(uint256 reserveIndex_, uint256 rebaseMintPerc_) public onlyGov {
         require(reserveIndex_ < 3);
 
         uint256 oldRebaseMintPercs = rebaseMintPercs[reserveIndex_];
         rebaseMintPercs[reserveIndex_] = rebaseMintPerc_;
 
-        require(
-            rebaseMintPercs[0] + rebaseMintPercs[1] + rebaseMintPercs[2] <
-                MAX_MINT_PERC_PARAM
-        );
+        require(rebaseMintPercs[0] + rebaseMintPercs[1] + rebaseMintPercs[2] < MAX_MINT_PERC_PARAM);
 
-        emit NewRebaseMintPercent(
-            reserveIndex_,
-            oldRebaseMintPercs,
-            rebaseMintPerc_
-        );
+        emit NewRebaseMintPercent(reserveIndex_, oldRebaseMintPercs, rebaseMintPerc_);
     }
 
     /**
@@ -365,18 +326,11 @@ contract YUANRebaser {
     @param reservesContract_ the new reserve contract
     *
     */
-    function setReserveContract(
-        uint256 reserveIndex_,
-        address reservesContract_
-    ) public onlyGov {
+    function setReserveContract(uint256 reserveIndex_, address reservesContract_) public onlyGov {
         require(reserveIndex_ < 3);
         address oldReservesContract = reservesContracts[reserveIndex_];
         reservesContracts[reserveIndex_] = reservesContract_;
-        emit NewReserveContract(
-            reserveIndex_,
-            oldReservesContract,
-            reservesContract_
-        );
+        emit NewReserveContract(reserveIndex_, oldReservesContract, reservesContract_);
     }
 
     /** @notice sets the pendingGov
@@ -404,13 +358,7 @@ contract YUANRebaser {
      */
     function init_twap() public {
         require(timeOfTWAPInit == 0, "already activated");
-        (
-            uint256 priceCumulative,
-            uint32 blockTimestamp
-        ) = UniswapV2OracleLibrary.currentCumulativePrices(
-            uniswap_pair,
-            isToken0
-        );
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
         require(blockTimestamp > 0, "no trades");
         blockTimestampLast = blockTimestamp;
         priceCumulativeLast = priceCumulative;
@@ -449,9 +397,7 @@ contract YUANRebaser {
         require(lastRebaseTimestampSec.add(minRebaseTimeIntervalSec) < now);
 
         // Snap the rebase time to the start of this window.
-        lastRebaseTimestampSec = now.sub(now.mod(minRebaseTimeIntervalSec)).add(
-            rebaseWindowOffsetSec
-        );
+        lastRebaseTimestampSec = now.sub(now.mod(minRebaseTimeIntervalSec)).add(rebaseWindowOffsetSec);
 
         epoch = epoch.add(1);
 
@@ -470,8 +416,7 @@ contract YUANRebaser {
 
         if (positive) {
             require(
-                yuan.yuansScalingFactor().mul(BASE.add(indexDelta)).div(BASE) <
-                    yuan.maxScalingFactor(),
+                yuan.yuansScalingFactor().mul(BASE.add(indexDelta)).div(BASE) < yuan.maxScalingFactor(),
                 "new scaling factor will be too big"
             );
         }
@@ -481,20 +426,12 @@ contract YUANRebaser {
         uint256[3] memory mintAmounts;
         // reduce indexDelta to account for minting
         if (positive) {
-            uint256 rebaseMintPerc = rebaseMintPercs[0] +
-                rebaseMintPercs[1] +
-                rebaseMintPercs[2];
+            uint256 rebaseMintPerc = rebaseMintPercs[0] + rebaseMintPercs[1] + rebaseMintPercs[2];
             uint256 mintPerc = indexDelta.mul(rebaseMintPerc).div(BASE);
 
-            mintAmounts[0] = currSupply
-                .mul(indexDelta.mul(rebaseMintPercs[0]).div(BASE))
-                .div(BASE);
-            mintAmounts[1] = currSupply
-                .mul(indexDelta.mul(rebaseMintPercs[1]).div(BASE))
-                .div(BASE);
-            mintAmounts[2] = currSupply
-                .mul(indexDelta.mul(rebaseMintPercs[2]).div(BASE))
-                .div(BASE);
+            mintAmounts[0] = currSupply.mul(indexDelta.mul(rebaseMintPercs[0]).div(BASE)).div(BASE);
+            mintAmounts[1] = currSupply.mul(indexDelta.mul(rebaseMintPercs[1]).div(BASE)).div(BASE);
+            mintAmounts[2] = currSupply.mul(indexDelta.mul(rebaseMintPercs[2]).div(BASE)).div(BASE);
 
             indexDelta = indexDelta.sub(mintPerc);
         }
@@ -523,18 +460,11 @@ contract YUANRebaser {
 
         if (uniVars.amountFromReserves > 0) {
             // transfer from reserves and mint to uniswap
-            yuan.transferFrom(
-                reservesContracts[0],
-                uniswap_pair,
-                uniVars.amountFromReserves
-            );
+            yuan.transferFrom(reservesContracts[0], uniswap_pair, uniVars.amountFromReserves);
             if (uniVars.amountFromReserves < uniVars.yuansToUni) {
                 // if the amount from reserves > yuansToUni, we have fully paid for the yCRV tokens
                 // thus this number would be 0 so no need to mint
-                yuan.mint(
-                    uniswap_pair,
-                    uniVars.yuansToUni.sub(uniVars.amountFromReserves)
-                );
+                yuan.mint(uniswap_pair, uniVars.yuansToUni.sub(uniVars.amountFromReserves));
             }
         } else {
             // mint to uniswap
@@ -549,19 +479,9 @@ contract YUANRebaser {
         // transfer reserve token to reserves
         if (isToken0) {
             if (public_goods != address(0) && public_goods_perc > 0) {
-                uint256 amount_to_public_goods = amount1
-                    .mul(public_goods_perc)
-                    .div(BASE);
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    reservesContracts[0],
-                    amount1.sub(amount_to_public_goods)
-                );
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    public_goods,
-                    amount_to_public_goods
-                );
+                uint256 amount_to_public_goods = amount1.mul(public_goods_perc).div(BASE);
+                SafeERC20.safeTransfer(IERC20(reserveToken), reservesContracts[0], amount1.sub(amount_to_public_goods));
+                SafeERC20.safeTransfer(IERC20(reserveToken), public_goods, amount_to_public_goods);
                 emit TreasuryIncreased(
                     amount1.sub(amount_to_public_goods),
                     uniVars.yuansToUni,
@@ -569,33 +489,14 @@ contract YUANRebaser {
                     uniVars.mintToReserves
                 );
             } else {
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    reservesContracts[0],
-                    amount1
-                );
-                emit TreasuryIncreased(
-                    amount1,
-                    uniVars.yuansToUni,
-                    uniVars.amountFromReserves,
-                    uniVars.mintToReserves
-                );
+                SafeERC20.safeTransfer(IERC20(reserveToken), reservesContracts[0], amount1);
+                emit TreasuryIncreased(amount1, uniVars.yuansToUni, uniVars.amountFromReserves, uniVars.mintToReserves);
             }
         } else {
             if (public_goods != address(0) && public_goods_perc > 0) {
-                uint256 amount_to_public_goods = amount0
-                    .mul(public_goods_perc)
-                    .div(BASE);
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    reservesContracts[0],
-                    amount0.sub(amount_to_public_goods)
-                );
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    public_goods,
-                    amount_to_public_goods
-                );
+                uint256 amount_to_public_goods = amount0.mul(public_goods_perc).div(BASE);
+                SafeERC20.safeTransfer(IERC20(reserveToken), reservesContracts[0], amount0.sub(amount_to_public_goods));
+                SafeERC20.safeTransfer(IERC20(reserveToken), public_goods, amount_to_public_goods);
                 emit TreasuryIncreased(
                     amount0.sub(amount_to_public_goods),
                     uniVars.yuansToUni,
@@ -603,24 +504,13 @@ contract YUANRebaser {
                     uniVars.mintToReserves
                 );
             } else {
-                SafeERC20.safeTransfer(
-                    IERC20(reserveToken),
-                    reservesContracts[0],
-                    amount0
-                );
-                emit TreasuryIncreased(
-                    amount0,
-                    uniVars.yuansToUni,
-                    uniVars.amountFromReserves,
-                    uniVars.mintToReserves
-                );
+                SafeERC20.safeTransfer(IERC20(reserveToken), reservesContracts[0], amount0);
+                emit TreasuryIncreased(amount0, uniVars.yuansToUni, uniVars.amountFromReserves, uniVars.mintToReserves);
             }
         }
     }
 
-    function buyReserveAndTransfer(uint256 mintAmount, uint256 offPegPerc)
-        internal
-    {
+    function buyReserveAndTransfer(uint256 mintAmount, uint256 offPegPerc) internal {
         UniswapPair pair = UniswapPair(uniswap_pair);
 
         YUANTokenInterface yuan = YUANTokenInterface(yuanAddress);
@@ -631,17 +521,14 @@ contract YUANRebaser {
         // check if protocol has excess yuan in the reserve
         uint256 excess = yuan.balanceOf(reservesContracts[0]);
 
-        uint256 tokens_to_max_slippage = uniswapMaxSlippage(
-            token0Reserves,
-            token1Reserves,
-            offPegPerc
-        );
+        uint256 tokens_to_max_slippage = uniswapMaxSlippage(token0Reserves, token1Reserves, offPegPerc);
 
-        UniVars memory uniVars = UniVars({
-            yuansToUni: tokens_to_max_slippage, // how many yuans uniswap needs
-            amountFromReserves: excess, // how much of yuansToUni comes from reserves
-            mintToReserves: 0 // how much yuans protocol mints to reserves
-        });
+        UniVars memory uniVars =
+            UniVars({
+                yuansToUni: tokens_to_max_slippage, // how many yuans uniswap needs
+                amountFromReserves: excess, // how much of yuansToUni comes from reserves
+                mintToReserves: 0 // how much yuans protocol mints to reserves
+            });
 
         // tries to sell all mint + excess
         // falls back to selling some of mint and all of excess
@@ -653,11 +540,7 @@ contract YUANRebaser {
                 // so we dont need to continue using it in this code path
 
                 // can handle selling all of reserves and mint
-                uint256 buyTokens = getAmountOut(
-                    mintAmount + excess,
-                    token0Reserves,
-                    token1Reserves
-                );
+                uint256 buyTokens = getAmountOut(mintAmount + excess, token0Reserves, token1Reserves);
                 uniVars.yuansToUni = mintAmount + excess;
                 uniVars.amountFromReserves = excess;
                 // call swap using entire mint amount and excess; mint 0 to reserves
@@ -665,24 +548,14 @@ contract YUANRebaser {
             } else {
                 if (tokens_to_max_slippage > excess) {
                     // uniswap can handle entire reserves
-                    uint256 buyTokens = getAmountOut(
-                        tokens_to_max_slippage,
-                        token0Reserves,
-                        token1Reserves
-                    );
+                    uint256 buyTokens = getAmountOut(tokens_to_max_slippage, token0Reserves, token1Reserves);
 
                     // swap up to slippage limit, taking entire yuan reserves, and minting part of total
-                    uniVars.mintToReserves = mintAmount.sub(
-                        (tokens_to_max_slippage - excess)
-                    );
+                    uniVars.mintToReserves = mintAmount.sub((tokens_to_max_slippage - excess));
                     pair.swap(0, buyTokens, address(this), abi.encode(uniVars));
                 } else {
                     // uniswap cant handle all of excess
-                    uint256 buyTokens = getAmountOut(
-                        tokens_to_max_slippage,
-                        token0Reserves,
-                        token1Reserves
-                    );
+                    uint256 buyTokens = getAmountOut(tokens_to_max_slippage, token0Reserves, token1Reserves);
                     uniVars.amountFromReserves = tokens_to_max_slippage;
                     uniVars.mintToReserves = mintAmount;
                     // swap up to slippage limit, taking excess - remainingExcess from reserves, and minting full amount
@@ -693,11 +566,7 @@ contract YUANRebaser {
         } else {
             if (tokens_to_max_slippage > mintAmount.add(excess)) {
                 // can handle all of reserves and mint
-                uint256 buyTokens = getAmountOut(
-                    mintAmount + excess,
-                    token1Reserves,
-                    token0Reserves
-                );
+                uint256 buyTokens = getAmountOut(mintAmount + excess, token1Reserves, token0Reserves);
                 uniVars.yuansToUni = mintAmount + excess;
                 uniVars.amountFromReserves = excess;
                 // call swap using entire mint amount and excess; mint 0 to reserves
@@ -705,25 +574,15 @@ contract YUANRebaser {
             } else {
                 if (tokens_to_max_slippage > excess) {
                     // uniswap can handle entire reserves
-                    uint256 buyTokens = getAmountOut(
-                        tokens_to_max_slippage,
-                        token1Reserves,
-                        token0Reserves
-                    );
+                    uint256 buyTokens = getAmountOut(tokens_to_max_slippage, token1Reserves, token0Reserves);
 
                     // swap up to slippage limit, taking entire yuan reserves, and minting part of total
-                    uniVars.mintToReserves = mintAmount.sub(
-                        (tokens_to_max_slippage - excess)
-                    );
+                    uniVars.mintToReserves = mintAmount.sub((tokens_to_max_slippage - excess));
                     // swap up to slippage limit, taking entire yuan reserves, and minting part of total
                     pair.swap(buyTokens, 0, address(this), abi.encode(uniVars));
                 } else {
                     // uniswap cant handle all of excess
-                    uint256 buyTokens = getAmountOut(
-                        tokens_to_max_slippage,
-                        token1Reserves,
-                        token0Reserves
-                    );
+                    uint256 buyTokens = getAmountOut(tokens_to_max_slippage, token1Reserves, token0Reserves);
                     uniVars.amountFromReserves = tokens_to_max_slippage;
                     uniVars.mintToReserves = mintAmount;
                     // swap up to slippage limit, taking excess - remainingExcess from reserves, and minting full amount
@@ -775,19 +634,14 @@ contract YUANRebaser {
         uint256 reserveOut
     ) internal pure returns (uint256 amountOut) {
         require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
-        require(
-            reserveIn > 0 && reserveOut > 0,
-            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
-        );
+        require(reserveIn > 0 && reserveOut > 0, "UniswapV2Library: INSUFFICIENT_LIQUIDITY");
         uint256 amountInWithFee = amountIn.mul(997);
         uint256 numerator = amountInWithFee.mul(reserveOut);
         uint256 denominator = reserveIn.mul(1000).add(amountInWithFee);
         amountOut = numerator / denominator;
     }
 
-    function afterRebase(uint256[3] memory mintAmounts, uint256 offPegPerc)
-        internal
-    {
+    function afterRebase(uint256[3] memory mintAmounts, uint256 offPegPerc) internal {
         // update uniswap pairs
         for (uint256 i = 0; i < uniSyncPairs.length; i++) {
             UniswapPair(uniSyncPairs[i]).sync();
@@ -829,21 +683,13 @@ contract YUANRebaser {
      *      to be able to manipulate this during that time period of highest vuln.
      */
     function getTWAP() internal returns (uint256) {
-        (
-            uint256 priceCumulative,
-            uint32 blockTimestamp
-        ) = UniswapV2OracleLibrary.currentCumulativePrices(
-            uniswap_pair,
-            isToken0
-        );
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow
 
         // overflow is desired
-        uint256 priceAverage = uint256(
-            uint224((priceCumulative - priceCumulativeLast) / timeElapsed)
-        );
+        uint256 priceAverage = uint256(uint224((priceCumulative - priceCumulativeLast) / timeElapsed));
 
         priceCumulativeLast = priceCumulative;
         blockTimestampLast = blockTimestamp;
@@ -877,21 +723,13 @@ contract YUANRebaser {
      *
      */
     function getCurrentTWAP() public view returns (uint256) {
-        (
-            uint256 priceCumulative,
-            uint32 blockTimestamp
-        ) = UniswapV2OracleLibrary.currentCumulativePrices(
-            uniswap_pair,
-            isToken0
-        );
+        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswap_pair, isToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow
 
         // overflow is desired
-        uint256 priceAverage = uint256(
-            uint224((priceCumulative - priceCumulativeLast) / timeElapsed)
-        );
+        uint256 priceAverage = uint256(uint224((priceCumulative - priceCumulativeLast) / timeElapsed));
 
         // BASE is on order of 1e18, which takes 2^60 bits
         // multiplication will revert if priceAverage > 2^196
@@ -911,10 +749,7 @@ contract YUANRebaser {
      *
      */
     function getCurrentExchangeRate() public view returns (uint256) {
-        return
-            getCurrentTWAP()
-                .mul(IPriceOracle(priceOracle).getPrice(reserveToken))
-                .div(BASE);
+        return getCurrentTWAP().mul(IPriceOracle(priceOracle).getPrice(reserveToken)).div(BASE);
     }
 
     /**
@@ -923,10 +758,7 @@ contract YUANRebaser {
      *         modifications are made.
      * @param deviationThreshold_ The new exchange rate threshold fraction.
      */
-    function setDeviationThreshold(uint256 deviationThreshold_)
-        external
-        onlyGov
-    {
+    function setDeviationThreshold(uint256 deviationThreshold_) external onlyGov {
         require(deviationThreshold > 0);
         uint256 oldDeviationThreshold = deviationThreshold;
         deviationThreshold = deviationThreshold_;
@@ -985,10 +817,7 @@ contract YUANRebaser {
     ) external onlyGov {
         require(minRebaseTimeIntervalSec_ > 0);
         require(rebaseWindowOffsetSec_ < minRebaseTimeIntervalSec_);
-        require(
-            rebaseWindowOffsetSec_ + rebaseWindowLengthSec_ <
-                minRebaseTimeIntervalSec_
-        );
+        require(rebaseWindowOffsetSec_ + rebaseWindowLengthSec_ < minRebaseTimeIntervalSec_);
         minRebaseTimeIntervalSec = minRebaseTimeIntervalSec_;
         rebaseWindowOffsetSec = rebaseWindowOffsetSec_;
         rebaseWindowLengthSec = rebaseWindowLengthSec_;
@@ -1008,25 +837,14 @@ contract YUANRebaser {
         // rebasing is delayed until there is a liquid market
         require(rebasingActive, "rebasing not active");
 
-        require(
-            now.mod(minRebaseTimeIntervalSec) >= rebaseWindowOffsetSec,
-            "too early"
-        );
-        require(
-            now.mod(minRebaseTimeIntervalSec) <
-                (rebaseWindowOffsetSec.add(rebaseWindowLengthSec)),
-            "too late"
-        );
+        require(now.mod(minRebaseTimeIntervalSec) >= rebaseWindowOffsetSec, "too early");
+        require(now.mod(minRebaseTimeIntervalSec) < (rebaseWindowOffsetSec.add(rebaseWindowLengthSec)), "too late");
     }
 
     /**
      * @return Computes in % how far off market is from peg
      */
-    function computeOffPegPerc(uint256 rate)
-        private
-        view
-        returns (uint256, bool)
-    {
+    function computeOffPegPerc(uint256 rate) private view returns (uint256, bool) {
         if (withinDeviationThreshold(rate)) {
             return (0, false);
         }
@@ -1044,20 +862,12 @@ contract YUANRebaser {
      * @return If the rate is within the deviation threshold from the target rate, returns true.
      *         Otherwise, returns false.
      */
-    function withinDeviationThreshold(uint256 rate)
-        private
-        view
-        returns (bool)
-    {
-        uint256 absoluteDeviationThreshold = targetRate
-            .mul(deviationThreshold)
-            .div(10**18);
+    function withinDeviationThreshold(uint256 rate) private view returns (bool) {
+        uint256 absoluteDeviationThreshold = targetRate.mul(deviationThreshold).div(10**18);
 
         return
-            (rate >= targetRate &&
-                rate.sub(targetRate) < absoluteDeviationThreshold) ||
-            (rate < targetRate &&
-                targetRate.sub(rate) < absoluteDeviationThreshold);
+            (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold) ||
+            (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
     }
 
     /* - Constructor Helpers - */
@@ -1083,15 +893,9 @@ contract YUANRebaser {
     }
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
-    function sortTokens(address tokenA, address tokenB)
-        internal
-        pure
-        returns (address token0, address token1)
-    {
+    function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
         require(tokenA != tokenB, "UniswapV2Library: IDENTICAL_ADDRESSES");
-        (token0, token1) = tokenA < tokenB
-            ? (tokenA, tokenB)
-            : (tokenB, tokenA);
+        (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), "UniswapV2Library: ZERO_ADDRESS");
     }
 
@@ -1102,13 +906,8 @@ contract YUANRebaser {
      * @param destination Address of contract destination
      * @param data Transaction data payload
      */
-    function addTransaction(address destination, bytes calldata data)
-        external
-        onlyGov
-    {
-        transactions.push(
-            Transaction({enabled: true, destination: destination, data: data})
-        );
+    function addTransaction(address destination, bytes calldata data) external onlyGov {
+        transactions.push(Transaction({enabled: true, destination: destination, data: data}));
     }
 
     /**
@@ -1129,14 +928,8 @@ contract YUANRebaser {
      * @param index Index of transaction. Transaction ordering may have changed since adding.
      * @param enabled True for enabled, false for disabled.
      */
-    function setTransactionEnabled(uint256 index, bool enabled)
-        external
-        onlyGov
-    {
-        require(
-            index < transactions.length,
-            "index must be in range of stored tx list"
-        );
+    function setTransactionEnabled(uint256 index, bool enabled) external onlyGov {
+        require(index < transactions.length, "index must be in range of stored tx list");
         transactions[index].enabled = enabled;
     }
 
@@ -1146,10 +939,7 @@ contract YUANRebaser {
      * @param data The encoded data payload.
      * @return True on success
      */
-    function externalCall(address destination, bytes memory data)
-        internal
-        returns (bool)
-    {
+    function externalCall(address destination, bytes memory data) internal returns (bool) {
         bool result;
         assembly {
             // solhint-disable-line no-inline-assembly

@@ -358,7 +358,8 @@ contract eETHRebaser {
      */
     function init_twap() public {
         require(timeOfTWAPInit == 0, "already activated");
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) =
+            UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         require(blockTimestamp > 0, "no trades");
         blockTimestampLast = blockTimestamp;
         priceCumulativeLast = priceCumulative;
@@ -679,7 +680,8 @@ contract eETHRebaser {
      *      to be able to manipulate this during that time period of highest vuln.
      */
     function getTWAP() internal returns (uint256) {
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) =
+            UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow
@@ -708,7 +710,8 @@ contract eETHRebaser {
      *
      */
     function getCurrentTWAP() public view returns (uint256) {
-        (uint256 priceCumulative, uint32 blockTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
+        (uint256 priceCumulative, uint32 blockTimestamp) =
+            UniswapV2OracleLibrary.currentCumulativePrices(uniswapTwapPair, isTwapToken0);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // no period check as is done in isRebaseWindow
