@@ -731,11 +731,16 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     uint256 public starttime = 1611064240; // Tuesday, January 19, 2021 9:50:40 PM (UTC+8)
     uint256 public periodFinish = 0;
     uint256 public initialRewardRate = 0;
+    uint256 public initialEBTCRewardRate = 0;
+    uint256 public initialEETHRewardRate = 0;
     uint256 public lastUpdateTime;
     uint256 public distributionTime;
-    uint256 public rewardPerTokenStored;
-    mapping(address => uint256) public userRewardPerTokenPaid;
-    mapping(address => uint256) public rewards;
+    // uint256 public rewardPerTokenStored;
+    mapping(address => uint256) public rewardPerTokenStored;
+    // mapping(address => uint256) public userRewardPerTokenPaid;
+    mapping(address => mapping(address => uint256)) public userRewardPerTokenPaid;
+    // mapping(address => uint256) public rewards;
+    mapping(address => mapping(address => uint256)) public rewards;
 
     event RewardAdded(uint256 reward);
     event Staked(address indexed user, uint256 amount);
@@ -748,11 +753,14 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     }
 
     modifier updateReward(address account) {
-        rewardPerTokenStored = rewardPerToken();
+        (uint256 _eBTCRewardPerTokenStored, uint256 _eETHRewardPerTokenStored) = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
         if (account != address(0)) {
-            rewards[account] = earned(account);
-            userRewardPerTokenPaid[account] = rewardPerTokenStored;
+            (uint256 _eBTCEarned, uint256 _eETHEarned) = earned(account);
+            rewards[_eBTC][account] = _eBTCEarned;
+            rewards[_eETH][account] = _eETHEarned;
+            userRewardPerTokenPaid[_eBTC][account] = _eBTCRewardPerTokenStored;
+            userRewardPerTokenPaid[_eETH][account] = _eETHRewardPerTokenStored;
         }
         _;
     }
@@ -761,22 +769,22 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
         return Math.min(block.timestamp, periodFinish);
     }
 
-    function rewardPerToken() public view returns (uint256) {
+    function rewardPerToken() public view returns (uint256, uint256) {
         if (totalSupply() == 0) {
-            return rewardPerTokenStored;
+            return (rewardPerTokenStored[_eBTC], rewardPerTokenStored[_eETH]);
         }
-        return
-            rewardPerTokenStored.add(
-                getrewardPerTokenAmount().mul(1e18).div(totalSupply())
-            );
+
+        (uint256 _eBTCRewardPerTokenAmount, uint256 _eETCRewardPerTokenAmount) = getRewardPerTokenAmount();
+        uint256 _eBTCResult = rewardPerTokenStored[_eBTC].add(_eBTCRewardPerTokenAmount.mul(1e18).div(totalSupply()));
+        uint256 _eETHResult = rewardPerTokenStored[_eETH].add(_eETCRewardPerTokenAmount.mul(1e18).div(totalSupply()));
+        return (_eBTCResult, _eETHResult);
     }
 
-    function earned(address account) public view returns (uint256) {
-        return
-            balanceOf(account)
-                .mul(rewardPerToken().sub(userRewardPerTokenPaid[account]))
-                .div(1e18)
-                .add(rewards[account]);
+    function earned(address account) public view returns (uint256, uint256) {
+        (uint256 _eBTCRewardPerTokenStored, uint256 _eETHRewardPerTokenStored) = rewardPerToken();
+        uint256 _eBTCResult = balanceOf(account).mul(_eBTCRewardPerTokenStored.sub(userRewardPerTokenPaid[_eBTC][account])).div(1e18).add(rewards[_eBTC][account]);
+        uint256 _eETHResult = balanceOf(account).mul(_eETHRewardPerTokenStored.sub(userRewardPerTokenPaid[_eETH][account])).div(1e18).add(rewards[_eETH][account]);
+        return (_eBTCResult, _eETHResult);
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function
@@ -802,18 +810,22 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     }
 
     function getReward() public updateReward(msg.sender) checkStart {
-        uint256 reward = rewards[msg.sender];
-        if (reward > 0) {
-            rewards[msg.sender] = 0;
+        uint256 _eBTCReward = rewards[_eBTC][msg.sender];
+        uint256 _eETHReward = rewards[_eETH][msg.sender];
+        if (_eBTCReward > 0) {
+            rewards[_eBTC][msg.sender] = 0;
             uint256 eBTCScalingFactor = YUAN(_eBTC).yuansScalingFactor();
-            uint256 eBTCTrueReward = reward.mul(eBTCScalingFactor).div(10**18);
+            uint256 eBTCTrueReward = _eBTCReward.mul(eBTCScalingFactor).div(10**18);
             eBTC.safeTransfer(msg.sender, eBTCTrueReward);
+            emit RewardPaid(msg.sender, _eBTCReward);
+        }
 
+        if (_eETHReward > 0) {
+            rewards[_eETH][msg.sender] = 0;
             uint256 eETHScalingFactor = YUAN(_eETH).yuansScalingFactor();
-            uint256 eETHTrueReward = reward.mul(eETHScalingFactor).div(10**18);
+            uint256 eETHTrueReward = _eETHReward.mul(eETHScalingFactor).div(10**18);
             eETH.safeTransfer(msg.sender, eETHTrueReward);
-
-            emit RewardPaid(msg.sender, reward);
+            emit RewardPaid(msg.sender, _eETHReward);
         }
     }
 
@@ -822,13 +834,13 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
      * such time span could be divided into 3 parts by halve intervals:
      * (lastUpdateTime, firstIntervalEnd), (firstIntervalEnd, lastIntervalStart), (lastIntervalStart, lastTimeRewardApplicable())
      */
-    function getrewardPerTokenAmount() public view returns (uint256) {
+    function getRewardPerTokenAmount() public view returns (uint256, uint256) {
         uint256 _timestamp = lastTimeRewardApplicable();
         uint256 _distributionTime = distributionTime;
         uint256 _lastUpdateTime = lastUpdateTime;
 
         if (_timestamp < _distributionTime || _timestamp == _lastUpdateTime)
-            return 0;
+            return (0, 0);
 
         uint256 _lastUpdateTimeOffset = _lastUpdateTime.sub(_distributionTime) %
             halveInterval;
@@ -837,40 +849,79 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
             .add(halveInterval);
 
         // The time span is too short that it has not reach _firstIntervalEnd
-        if (_timestamp < _firstIntervalEnd)
-            return
-                _timestamp.sub(_lastUpdateTime).mul(
-                    getFixedRewardRate(_lastUpdateTime)
-                );
+        // if (_timestamp < _firstIntervalEnd)
+        //     return
+        //         _timestamp.sub(_lastUpdateTime).mul(
+        //             getFixedRewardRate(_lastUpdateTime)
+        //         );
 
         // The amount from _lastUpdateTime to _firstIntervalEnd
-        uint256 _rewardPerTokenAmount = halveInterval
-            .sub(_lastUpdateTimeOffset)
-            .mul(getFixedRewardRate(_lastUpdateTime));
+        // uint256 _rewardPerTokenAmount = halveInterval
+        //     .sub(_lastUpdateTimeOffset)
+        //     .mul(getFixedRewardRate(_lastUpdateTime));
 
         // The amount from _firstIntervalEnd to last interval start, it may contains n full halve interval (n >= 0)
         // n = 0 if _firstIntervalEnd and _timestamp lay in the same halve interval
         // _currentRewardRate represents 1/2 of the reward rate of last full interval
-        uint256 _currentRewardRate = getFixedRewardRate(_timestamp);
-        _rewardPerTokenAmount = _rewardPerTokenAmount.add(
+        // uint256 _currentRewardRate = getFixedRewardRate(_timestamp);
+        // _rewardPerTokenAmount = _rewardPerTokenAmount.add(
+        //     (
+        //         halveInterval.mul(
+        //             getFixedRewardRate(_firstIntervalEnd).sub(
+        //                 _currentRewardRate
+        //             )
+        //         )
+        //     ) << 1
+        // );
+
+        // Finally, the amount from last interval start to timestamp
+        // return
+        //     _rewardPerTokenAmount.add(
+        //         (_timestamp.sub(_distributionTime) % halveInterval).mul(
+        //             _currentRewardRate
+        //         )
+        //     );
+
+        (uint256 _eBTCFixedRewardRate, uint256 _eETHFixedRewardRate) = getFixedRewardRatePerToken(_lastUpdateTime);
+
+        // The time span is too short that it has not reach _firstIntervalEnd
+        if (_timestamp < _firstIntervalEnd) {
+            uint256 _eBTCResult = _timestamp.sub(_lastUpdateTime).mul(_eBTCFixedRewardRate);
+            uint256 _eETHResult = _timestamp.sub(_lastUpdateTime).mul(_eETHFixedRewardRate);
+            return (_eBTCResult, _eETHResult);
+        }
+        
+        // The amount from _lastUpdateTime to _firstIntervalEnd
+        uint256 _eBTCRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(_eBTCFixedRewardRate);
+        uint256 _eETHRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(_eETHFixedRewardRate);
+
+        // The amount from _firstIntervalEnd to last interval start, it may contains n full halve interval (n >= 0)
+        // n = 0 if _firstIntervalEnd and _timestamp lay in the same halve interval
+        // _currentRewardRate represents 1/2 of the reward rate of last full interval
+        (uint256 _eBTCCurrentRewardRate, uint256 _eETHCurrentRewardRate) = getFixedRewardRatePerToken(_timestamp);
+        (uint256 _eBTCFirstIntervalEndRewardRate, uint256 _eETHFirstIntervalEndRewardRate) = getFixedRewardRatePerToken(_firstIntervalEnd);
+        _eBTCRewardPerTokenAmount = _eBTCRewardPerTokenAmount.add(
             (
-                halveInterval.mul(
-                    getFixedRewardRate(_firstIntervalEnd).sub(
-                        _currentRewardRate
-                    )
-                )
+                halveInterval.mul(_eBTCFirstIntervalEndRewardRate.sub(_eBTCCurrentRewardRate))
+            ) << 1
+        );
+        _eETHRewardPerTokenAmount = _eETHRewardPerTokenAmount.add(
+            (
+                halveInterval.mul(_eETHFirstIntervalEndRewardRate.sub(_eETHCurrentRewardRate))
             ) << 1
         );
 
         // Finally, the amount from last interval start to timestamp
-        return
-            _rewardPerTokenAmount.add(
-                (_timestamp.sub(_distributionTime) % halveInterval).mul(
-                    _currentRewardRate
-                )
-            );
+        uint256 _eBTCResult = _eBTCRewardPerTokenAmount.add(
+            (_timestamp.sub(_distributionTime) % halveInterval).mul(_eBTCCurrentRewardRate)
+        );
+        uint256 _eETHResult = _eETHRewardPerTokenAmount.add(
+            (_timestamp.sub(_distributionTime) % halveInterval).mul(_eETHCurrentRewardRate)
+        );
+        return (_eBTCResult, _eETHResult);
     }
 
+    // TODO: Should add a new `rewardRate()` like function to call `getFixedRewardRatePerToken(uint256 _timestamp)`?
     function rewardRate() public view returns (uint256) {
         return getFixedRewardRate(block.timestamp);
     }
@@ -887,6 +938,22 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
                 halveInterval);
     }
 
+    function getFixedRewardRatePerToken(uint256 _timestamp)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        if (_timestamp < distributionTime) return (0, 0);
+
+        uint256 eBTCFixedRewardRate = initialEBTCRewardRate >>
+            (Math.min(_timestamp, periodFinish).sub(distributionTime) /
+                halveInterval);
+        uint256 eETHFixedRewardRate = initialEETHRewardRate >>
+            (Math.min(_timestamp, periodFinish).sub(distributionTime) /
+                halveInterval);
+        return (eBTCFixedRewardRate, eETHFixedRewardRate);
+    }
+
     function notifyRewardAmount(uint256 reward)
         external
         onlyRewardDistribution
@@ -894,7 +961,7 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     {
         // https://sips.synthetix.io/sips/sip-77
         // increased buffer for scaling factor ( supports up to 10**4 * 10**18 scaling factor)
-        require(reward < uint256(-1) / 10**22, "rewards too large, would lock");
+        require(reward < uint256(-1) / 10**22, "reward too large, would lock");
 
         uint256 _firstReward = reward.mul(1e18).div(
             2e18 - (2e18 >> (DURATION.div(halveInterval)))
