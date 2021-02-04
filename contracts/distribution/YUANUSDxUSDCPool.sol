@@ -33,6 +33,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 */
 
+pragma experimental ABIEncoderV2;
+
 // File: @openzeppelin/contracts/math/Math.sol
 
 pragma solidity ^0.5.0;
@@ -882,41 +884,38 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
         //         )
         //     );
 
-        (uint256 _eBTCFixedRewardRate, uint256 _eETHFixedRewardRate) = getFixedRewardRatePerToken(_lastUpdateTime);
-
         // The time span is too short that it has not reach _firstIntervalEnd
         if (_timestamp < _firstIntervalEnd) {
-            uint256 _eBTCResult = _timestamp.sub(_lastUpdateTime).mul(_eBTCFixedRewardRate);
-            uint256 _eETHResult = _timestamp.sub(_lastUpdateTime).mul(_eETHFixedRewardRate);
+            uint256 _eBTCResult = _timestamp.sub(_lastUpdateTime).mul(getFixedRewardRatePerToken(_lastUpdateTime)[0]);
+            uint256 _eETHResult = _timestamp.sub(_lastUpdateTime).mul(getFixedRewardRatePerToken(_lastUpdateTime)[1]);
             return (_eBTCResult, _eETHResult);
         }
         
         // The amount from _lastUpdateTime to _firstIntervalEnd
-        uint256 _eBTCRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(_eBTCFixedRewardRate);
-        uint256 _eETHRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(_eETHFixedRewardRate);
+        uint256 _eBTCRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(getFixedRewardRatePerToken(_lastUpdateTime)[0]);
+        uint256 _eETHRewardPerTokenAmount = halveInterval.sub(_lastUpdateTimeOffset).mul(getFixedRewardRatePerToken(_lastUpdateTime)[1]);
 
         // The amount from _firstIntervalEnd to last interval start, it may contains n full halve interval (n >= 0)
         // n = 0 if _firstIntervalEnd and _timestamp lay in the same halve interval
         // _currentRewardRate represents 1/2 of the reward rate of last full interval
-        (uint256 _eBTCCurrentRewardRate, uint256 _eETHCurrentRewardRate) = getFixedRewardRatePerToken(_timestamp);
-        (uint256 _eBTCFirstIntervalEndRewardRate, uint256 _eETHFirstIntervalEndRewardRate) = getFixedRewardRatePerToken(_firstIntervalEnd);
+        uint256[] memory _currentRewardRate = getFixedRewardRatePerToken(_timestamp);
         _eBTCRewardPerTokenAmount = _eBTCRewardPerTokenAmount.add(
             (
-                halveInterval.mul(_eBTCFirstIntervalEndRewardRate.sub(_eBTCCurrentRewardRate))
+                halveInterval.mul(getFixedRewardRatePerToken(_firstIntervalEnd)[0].sub(_currentRewardRate[0]))
             ) << 1
         );
         _eETHRewardPerTokenAmount = _eETHRewardPerTokenAmount.add(
             (
-                halveInterval.mul(_eETHFirstIntervalEndRewardRate.sub(_eETHCurrentRewardRate))
+                halveInterval.mul(getFixedRewardRatePerToken(_firstIntervalEnd)[1].sub(_currentRewardRate[1]))
             ) << 1
         );
 
         // Finally, the amount from last interval start to timestamp
         uint256 _eBTCResult = _eBTCRewardPerTokenAmount.add(
-            (_timestamp.sub(_distributionTime) % halveInterval).mul(_eBTCCurrentRewardRate)
+            (_timestamp.sub(_distributionTime) % halveInterval).mul(_currentRewardRate[0])
         );
         uint256 _eETHResult = _eETHRewardPerTokenAmount.add(
-            (_timestamp.sub(_distributionTime) % halveInterval).mul(_eETHCurrentRewardRate)
+            (_timestamp.sub(_distributionTime) % halveInterval).mul(_currentRewardRate[1])
         );
         return (_eBTCResult, _eETHResult);
     }
@@ -941,9 +940,15 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     function getFixedRewardRatePerToken(uint256 _timestamp)
         public
         view
-        returns (uint256, uint256)
+        returns (uint256[] memory)
     {
-        if (_timestamp < distributionTime) return (0, 0);
+        uint256[] memory result = new uint256[](2);
+
+        if (_timestamp < distributionTime) {
+            result[0] = 0;
+            result[1] = 0;
+            return result;
+        }
 
         uint256 eBTCFixedRewardRate = initialEBTCRewardRate >>
             (Math.min(_timestamp, periodFinish).sub(distributionTime) /
@@ -951,7 +956,11 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
         uint256 eETHFixedRewardRate = initialEETHRewardRate >>
             (Math.min(_timestamp, periodFinish).sub(distributionTime) /
                 halveInterval);
-        return (eBTCFixedRewardRate, eETHFixedRewardRate);
+
+        result[0] = eBTCFixedRewardRate;
+        result[1] = eETHFixedRewardRate;
+
+        return result;
     }
 
     function notifyRewardAmount(uint256 reward)
