@@ -666,7 +666,7 @@ pragma solidity ^0.5.0;
 contract IRewardDistributionRecipient is Ownable {
     address public rewardDistribution;
 
-    function notifyRewardAmount(uint256 reward) external;
+    function notifyRewardAmount(uint256 eBTCReward, uint256 eETHReward) external;
 
     modifier onlyRewardDistribution() {
         require(
@@ -744,7 +744,7 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     // mapping(address => uint256) public rewards;
     mapping(address => mapping(address => uint256)) public rewards;
 
-    event RewardAdded(uint256 reward);
+    event RewardAdded(uint256 eBTCReward, uint256 eETHReward);
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
@@ -963,31 +963,37 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
         return result;
     }
 
-    function notifyRewardAmount(uint256 reward)
+    function notifyRewardAmount(uint256 eBTCReward, uint256 eETHReward)
         external
         onlyRewardDistribution
         updateReward(address(0))
     {
         // https://sips.synthetix.io/sips/sip-77
         // increased buffer for scaling factor ( supports up to 10**4 * 10**18 scaling factor)
-        require(reward < uint256(-1) / 10**22, "reward too large, would lock");
+        require((eBTCReward < uint256(-1) / 10**22) && (eETHReward < uint256(-1) / 10**22), "reward too large, would lock");
 
-        uint256 _firstReward = reward.mul(1e18).div(
+        uint256 _eBTCFirstReward = eBTCReward.mul(1e18).div(
             2e18 - (2e18 >> (DURATION.div(halveInterval)))
         );
+        uint256 _eETHFirstReward = eETHReward.mul(1e18).div(
+            2e18 - (2e18 >> (DURATION.div(halveInterval)))
+        );
+
         if (block.timestamp > starttime) {
             require(block.timestamp >= periodFinish, "not over yet");
-            initialRewardRate = _firstReward.div(halveInterval);
+            initialEBTCRewardRate = _eBTCFirstReward.div(halveInterval);
+            initialEETHRewardRate = _eETHFirstReward.div(halveInterval);
             lastUpdateTime = block.timestamp;
             distributionTime = block.timestamp;
             periodFinish = block.timestamp.add(DURATION);
-            emit RewardAdded(reward);
+            emit RewardAdded(eBTCReward, eETHReward);
         } else {
-            initialRewardRate = _firstReward.div(halveInterval);
+            initialEBTCRewardRate = _eBTCFirstReward.div(halveInterval);
+            initialEETHRewardRate = _eETHFirstReward.div(halveInterval);
             lastUpdateTime = starttime;
             distributionTime = starttime;
             periodFinish = starttime.add(DURATION);
-            emit RewardAdded(reward);
+            emit RewardAdded(eBTCReward, eETHReward);
         }
     }
 }

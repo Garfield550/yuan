@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "truffle compile",
     "deploy:test": "truffle test --network testnet",
+    "migrate:kovan": "truffle migrate --network kovan",
     "migrate:test": "truffle migrate --network testnet",
     "migrate": "truffle migrate",
     "format": "prettier --write contracts/**/*.sol",

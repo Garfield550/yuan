@@ -71,6 +71,7 @@ async function deployDistribution(deployer, network, accounts) {
     const six_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(600));
     // yuan-eth: 200,000
     const two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(200));
+    const one_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(100));
     // usdx-yuan:1,200,000
     const one_thousand_two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(1200));
     // usdc-eth, dai-eth, usdt-eth, usdx-eth, yam-eth, ampl-eth, uni-eth, yfi-eth,
@@ -84,11 +85,11 @@ async function deployDistribution(deployer, network, accounts) {
     console.log("transfering and notifying");
     // console.log("eth");
     await Promise.all([
-      eBTC.transfer(YUAN_USDxUSDCPool.address, six_hundred.toString()),
+      eBTC.transfer(YUAN_USDxUSDCPool.address, two_hundred.toString()),
       // eBTC.transfer(YUAN_ETHYUANPool.address, two_hundred.toString()),
       // eBTC.transfer(YUAN_USDxYUANPool.address, one_thousand_two_hundred.toString()),
 
-      eETH.transfer(YUAN_USDxUSDCPool.address, six_hundred.toString()),
+      eETH.transfer(YUAN_USDxUSDCPool.address, one_hundred.toString()),
       // eETH.transfer(YUAN_ETHYUANPool.address, two_hundred.toString()),
       // eETH.transfer(YUAN_USDxYUANPool.address, one_thousand_two_hundred.toString()),
 
@@ -97,7 +98,7 @@ async function deployDistribution(deployer, network, accounts) {
     ]);
 
     await Promise.all([
-      usdx_usdc_pool.methods.notifyRewardAmount(six_hundred.toString()).send({from:accounts[0]}),
+      usdx_usdc_pool.methods.notifyRewardAmount(two_hundred.toString(), one_hundred.toString()).send({ from: accounts[0] }),
       // eth_yuan_pool.methods.notifyRewardAmount(two_hundred.toString()).send({ from: accounts[0] }),
       // usdx_yuan_pool.methods.notifyRewardAmount(one_thousand_two_hundred.toString()).send({from:accounts[0]}),
 
