@@ -1,6 +1,6 @@
-var fs = require('fs')
-
 // ============ Contracts ============
+
+const { TWO_HUNDRED, ONE_HUNDRED } = require("./constants");
 
 
 // Protocol
@@ -11,12 +11,13 @@ const eBTCProxy = artifacts.require("eBTCDelegator");
 const Timelock = artifacts.require("Timelock");
 
 // deployed fourth
-const YUAN_USDxUSDCPool = artifacts.require("YUANUSDxUSDCPool");
+const YUANUSDxUSDCPool = artifacts.require("YUANUSDxUSDCPool");
 const YUAN_USDxYUANPool = artifacts.require("YUANUSDxYUANPool");
 const YUAN_ETHYUANPool = artifacts.require("YUANETHYUANPool");
 
 // const YUAN_ETHYAMPool = artifacts.require("YUANETHYAMPool");
 // const YUAN_ETHAMPLPool = artifacts.require("YUANETHAMPLPool");
+const eTokenUSDxUSDCPool = artifacts.require("eUSDxUSDCPool");
 
 
 // ============ Main Migration ============
@@ -43,91 +44,74 @@ async function deployDistribution(deployer, network, accounts) {
 
 
   if (network != "test") {
-    await deployer.deploy(YUAN_USDxUSDCPool);
+    // await deployer.deploy(YUAN_USDxUSDCPool);
     // await deployer.deploy(YUAN_USDxYUANPool);
     // await deployer.deploy(YUAN_ETHYUANPool);
-
     // await deployer.deploy(YUAN_ETHYAMPool);
     // await deployer.deploy(YUAN_ETHAMPLPool);
+    await deployer.deploy(eTokenUSDxUSDCPool);
 
-    const usdx_usdc_pool = new web3.eth.Contract(YUAN_USDxUSDCPool.abi, YUAN_USDxUSDCPool.address);
+    // const usdx_usdc_pool = new web3.eth.Contract(YUAN_USDxUSDCPool.abi, YUAN_USDxUSDCPool.address);
     // const usdx_yuan_pool = new web3.eth.Contract(YUAN_USDxYUANPool.abi, YUAN_USDxYUANPool.address);
     // const eth_yuan_pool = new web3.eth.Contract(YUAN_ETHYUANPool.abi, YUAN_ETHYUANPool.address);
+    // const eth_yam_pool = new web3.eth.Contract(YUAN_ETHYAMPool.abi, YUAN_ETHYAMPool.address);
+    // const eth_ampl_pool = new web3.eth.Contract(YUAN_ETHAMPLPool.abi, YUAN_ETHAMPLPool.address);
+    const eUSDxUSDCPOOL = await eTokenUSDxUSDCPool.deployed();
 
-    // let eth_yam_pool = new web3.eth.Contract(YUAN_ETHYAMPool.abi, YUAN_ETHYAMPool.address);
-    // let eth_ampl_pool = new web3.eth.Contract(YUAN_ETHAMPLPool.abi, YUAN_ETHAMPLPool.address);
-
-    console.log("setting distributor");
+    console.log("Setting distributor:");
     await Promise.all([
-      usdx_usdc_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0], gas: 100000}),
+      // usdx_usdc_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0], gas: 100000}),
       // usdx_yuan_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0], gas: 100000}),
       // eth_yuan_pool.methods.setRewardDistribution(accounts[0]).send({ from: accounts[0], gas: 100000 }),
-
       // eth_yam_pool.methods.setRewardDistribution(accounts[0]).send({ from: accounts[0], gas: 100000 }),
       // eth_ampl_pool.methods.setRewardDistribution(accounts[0]).send({ from: accounts[0], gas: 100000 }),
+      eUSDxUSDCPOOL.setRewardDistribution(accounts[0]),
     ]);
 
-    // usdx-usdc: 600,000
-    const six_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(600));
-    // yuan-eth: 200,000
-    const two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(200));
-    const one_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(100));
-    // usdx-yuan:1,200,000
-    const one_thousand_two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(1200));
-    // usdc-eth, dai-eth, usdt-eth, usdx-eth, yam-eth, ampl-eth, uni-eth, yfi-eth,
-    // df-eth, yfi-eth, link-eth, band-eth: 20,000
-    // let twenty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(20));
-    // incentive yuan-usdx: 40w * 30% => 120,000
-    // let one_hundred_twenty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(120));
-    // incentive yuan-eth: 40w * 70% => 280,000
-    // let two_hundred_eighty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(280));
-
-    console.log("transfering and notifying");
+    console.log("Transfering and notifying:");
     // console.log("eth");
     await Promise.all([
-      eBTC.transfer(YUAN_USDxUSDCPool.address, two_hundred.toString()),
-      // eBTC.transfer(YUAN_ETHYUANPool.address, two_hundred.toString()),
-      // eBTC.transfer(YUAN_USDxYUANPool.address, one_thousand_two_hundred.toString()),
-
-      eETH.transfer(YUAN_USDxUSDCPool.address, one_hundred.toString()),
-      // eETH.transfer(YUAN_ETHYUANPool.address, two_hundred.toString()),
-      // eETH.transfer(YUAN_USDxYUANPool.address, one_thousand_two_hundred.toString()),
-
+      // YUAN.transfer(YUAN_USDxUSDCPool.address, six_hundred.toString()),
+      // YUAN.transfer(YUAN_ETHYUANPool.address, two_hundred.toString()),
+      // YUAN.transfer(YUAN_USDxYUANPool.address, one_thousand_two_hundred.toString()),
       // YUAN.transfer(YUAN_ETHYAMPool.address, twenty.toString()),
       // YUAN.transfer(YUAN_ETHAMPLPool.address, twenty.toString()),
+
+      eBTC.transfer(eTokenUSDxUSDCPool.address, TWO_HUNDRED.toString()),
+
+      eETH.transfer(eTokenUSDxUSDCPool.address, ONE_HUNDRED.toString()),
     ]);
 
     await Promise.all([
-      usdx_usdc_pool.methods.notifyRewardAmount(two_hundred.toString(), one_hundred.toString()).send({ from: accounts[0] }),
+      // usdx_usdc_pool.methods.notifyRewardAmount(six_hundred.toString()).send({from:accounts[0]}),
       // eth_yuan_pool.methods.notifyRewardAmount(two_hundred.toString()).send({ from: accounts[0] }),
       // usdx_yuan_pool.methods.notifyRewardAmount(one_thousand_two_hundred.toString()).send({from:accounts[0]}),
-
       // eth_yam_pool.methods.notifyRewardAmount(twenty.toString()).send({from:accounts[0]}),
       // eth_ampl_pool.methods.notifyRewardAmount(twenty.toString()).send({ from: accounts[0]}),
+      eTokenUSDxUSDCPool.notifyRewardAmount(TWO_HUNDRED.toString(), ONE_HUNDRED.toString()),
     ]);
 
     // await Promise.all([
     //   usdx_usdc_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
     //   eth_yuan_pool.methods.setRewardDistribution(Timelock.address).send({ from: accounts[0], gas: 100000 }),
     //   usdx_yuan_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
-
-    //   // eth_yam_pool.methods.setRewardDistribution(Timelock.address).send({ from: accounts[0], gas: 100000 }),
-    //   // eth_ampl_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
+    //   eth_yam_pool.methods.setRewardDistribution(Timelock.address).send({ from: accounts[0], gas: 100000 }),
+    //   eth_ampl_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
     // ]);
+
     // await Promise.all([
     //   usdx_usdc_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
     //   eth_yuan_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
     //   usdx_yuan_pool.methods.transferOwnership(Timelock.address).send({ from: accounts[0], gas: 100000 }),
-
-    //   // eth_yam_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
-    //   // eth_ampl_pool.methods.transferOwnership(Timelock.address).send({ from: accounts[0], gas: 100000 }),
+    //   eth_yam_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
+    //   eth_ampl_pool.methods.transferOwnership(Timelock.address).send({ from: accounts[0], gas: 100000 }),
     // ]);
   }
 
-  console.log("USDxUSDC contract:  ", YUAN_USDxUSDCPool.address)
-  // console.log("ETHYUAN contract:   ", YUAN_ETHYUANPool.address)
-  // console.log("USDxYUAN contract:  ", YUAN_USDxYUANPool.address, "\n")
-
-  // console.log("ETHYAM contract:    ", YUAN_ETHYAMPool.address)
-  // console.log("ETHAMPL contract:   ", YUAN_ETHAMPLPool.address, "\n")
+  // console.log("USDxUSDC contract:  ", YUAN_USDxUSDCPool.address);
+  // console.log("ETHYUAN contract:   ", YUAN_ETHYUANPool.address);
+  // console.log("USDxYUAN contract:  ", YUAN_USDxYUANPool.address, "\n");
+  // console.log("ETHYAM contract:    ", YUAN_ETHYAMPool.address);
+  // console.log("ETHAMPL contract:   ", YUAN_ETHAMPLPool.address, "\n");
+  console.log("eTokenUSDxUSDC contract:  ", eTokenUSDxUSDCPool.address);
 }

@@ -67,6 +67,7 @@ const tokens = {
 const ZERO = "0x0000000000000000000000000000000000000000"
 
 const web3 = new Web3();
+const ONE_HUNDRED = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(100));
 // USDx-USDC: 600,000
 const SIX_HUNDRED = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(600));
 // YUAN-ETH: 200,000
@@ -90,5 +91,6 @@ module.exports = {
   ONE_THOUSAND_TWO_HUNDRED,
   TWENTY,
   ONE_HUNDRED_TWENTY,
-  TWO_HUNDRED_EIGHTY
+  TWO_HUNDRED_EIGHTY,
+  ONE_HUNDRED
 }

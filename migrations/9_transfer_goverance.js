@@ -6,12 +6,15 @@ var fs = require('fs')
 // Protocol
 const YUANProxy = artifacts.require("YUANDelegator");
 const eETHProxy = artifacts.require("eETHDelegator");
+const eBTCProxy = artifacts.require("eBTCDelegator");
 
 // deployed third
 const YUANReserves = artifacts.require("YUANReservesV2");
 const YUANRebaser = artifacts.require("YUANRebaser");
 const eETHReserves = artifacts.require("eETHReserves");
-const YUANRebaserV2 = artifacts.require("eETHRebaser"); // eETHRebaser
+const YUANRebaserV2 = artifacts.require("eETHRebaser");
+const eBTCReserves = artifacts.require("eBTCReserves");
+const eBTCRebaser_C = artifacts.require("eBTCRebaser");
 
 // deployed fourth
 const Gov = artifacts.require("GovernorAlpha");
@@ -21,9 +24,9 @@ const Timelock = artifacts.require("Timelock");
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  await Promise.all([
-    deployDistribution(deployer),
-  ]);
+  // await Promise.all([
+  //   deployDistribution(deployer),
+  // ]);
 }
 
 module.exports = migration;
@@ -40,6 +43,9 @@ async function deployDistribution(deployer) {
   const eETH = await eETHProxy.deployed();
   const eETHReserve = await eETHReserves.deployed();
   const eETHRebaser = await YUANRebaserV2.deployed();
+  const eBTC = await eBTCProxy.deployed();
+  const eBTCReserve = await eBTCReserves.deployed();
+  const eBTCRebaser = await eBTCRebaser_C.deployed();
 
 
   await Promise.all([
@@ -49,6 +55,9 @@ async function deployDistribution(deployer) {
     eETH._setPendingGov(Timelock.address),
     eETHReserve._setPendingGov(Timelock.address),
     eETHRebaser._setPendingGov(Timelock.address),
+    eBTC._setPendingGov(Timelock.address),
+    eBTCReserve._setPendingGov(Timelock.address),
+    eBTCRebaser._setPendingGov(Timelock.address),
   ]);
 
   await Promise.all([
@@ -92,6 +101,28 @@ async function deployDistribution(deployer) {
       ),
       tl.executeTransaction(
         eETHRebaser.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
+      // eBTC
+      tl.executeTransaction(
+        eBTCProxy.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
+      tl.executeTransaction(
+        eBTCReserve.address,
+        0,
+        "_acceptGov()",
+        "0x",
+        0
+      ),
+      tl.executeTransaction(
+        eBTCRebaser.address,
         0,
         "_acceptGov()",
         "0x",

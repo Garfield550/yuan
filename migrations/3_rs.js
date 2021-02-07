@@ -32,34 +32,36 @@ module.exports = migration;
 
 async function deployRs(deployer, network) {
   //#region YUAN Deploy
-  const reserveToken = tokens.yuan.reserveToken[network]; // USDx
-  const uniswapFactory = tokens.yuan.uniswapFactory[network];
-  const oraclePoster = tokens.yuan.oraclePoster[network];
+  // const reserveToken = tokens.yuan.reserveToken[network]; // USDx
+  // const uniswapFactory = tokens.yuan.uniswapFactory[network];
+  // const oraclePoster = tokens.yuan.oraclePoster[network];
   const yuan = await YUANProxy.deployed();
 
-  await deployer.deploy(Oracle, oraclePoster, "50000000000000000");
-  await deployer.deploy(YUANReserves, reserveToken, YUANProxy.address);
-  await deployer.deploy(YUANRebaser,
-    YUANProxy.address,
-    reserveToken,
-    uniswapFactory,
-    [YUANReserves.address, ZERO, ZERO],
-    ZERO,
-    0,
-    Oracle.address
-  );
+  // await deployer.deploy(Oracle, oraclePoster, "50000000000000000");
+  // await deployer.deploy(YUANReserves, reserveToken, YUANProxy.address);
+  // await deployer.deploy(YUANRebaser,
+  //   YUANProxy.address,
+  //   reserveToken,
+  //   uniswapFactory,
+  //   [YUANReserves.address, ZERO, ZERO],
+  //   ZERO,
+  //   0,
+  //   Oracle.address
+  // );
 
-  const rebase = new web3.eth.Contract(YUANRebaser.abi, YUANRebaser.address);
-  const pair = await rebase.methods.uniswap_pair().call();
-  console.log("YUAN Uniswap pair is:", pair); // YUAN/USDx
+  // const rebase = new web3.eth.Contract(YUANRebaser.abi, YUANRebaser.address);
+  // const pair = await rebase.methods.uniswap_pair().call();
+  // console.log("YUAN Uniswap pair is:", pair); // YUAN/USDx
 
-  await yuan._setRebaser(YUANRebaser.address);
-  const reserves = await YUANReserves.deployed();
-  await reserves._setRebaser(YUANRebaser.address);
+  // await yuan._setRebaser(YUANRebaser.address);
+  // const reserves = await YUANReserves.deployed();
+  // await reserves._setRebaser(YUANRebaser.address);
   //#endregion
 
   //#region eETH Deploy
-  const reserveTokenETH = tokens.eETH.reserveToken[network]; // YUAN
+  // If you want to fully deployed contracts that include YUAN, you can use YUANProxy.address
+  // const reserveTokenETH = tokens.eETH.reserveToken[network]; // YUAN
+  const reserveTokenETH = YUANProxy.address; // YUAN
   const uniswapFactoryETH = tokens.eETH.uniswapFactory[network];
   const ethToken = tokens.eETH.ethToken[network]; // WETH
   const eETH = await eETHProxy.deployed();
@@ -67,7 +69,7 @@ async function deployRs(deployer, network) {
   await deployer.deploy(eETHReserves, reserveTokenETH, eETHProxy.address);
   await deployer.deploy(eETHRebaser,
     eETHProxy.address,
-    reserveTokenETH, // If you want to fully deployed contracts that include YUAN, you can use YUANProxy.address
+    reserveTokenETH,
     uniswapFactoryETH,
     [eETHReserves.address, ZERO, ZERO],
     ZERO,
@@ -75,9 +77,9 @@ async function deployRs(deployer, network) {
     ethToken
   );
 
-  const rebaseETH = new web3.eth.Contract(eETHRebaser.abi, eETHRebaser.address);
-  const pairETH = await rebaseETH.methods.uniswap_pair().call();
-  const twapPairETH = await rebaseETH.methods.uniswapTwapPair().call();
+  const rebaseETH = await eETHRebaser.deployed();
+  const pairETH = await rebaseETH.uniswap_pair();
+  const twapPairETH = await rebaseETH.uniswapTwapPair();
   console.log("eETH Uniswap pair is:", pairETH); // eETH/YUAN
   console.log("eETH Uniswap TWAP pair is:", twapPairETH); // eETH/ETH
 
@@ -87,7 +89,8 @@ async function deployRs(deployer, network) {
   //#endregion
 
   //#region eBTC Deploy
-  const reserveTokenBTC = tokens.eBTC.reserveToken[network]; // YUAN
+  // const reserveTokenBTC = tokens.eBTC.reserveToken[network]; // YUAN
+  const reserveTokenBTC = YUANProxy.address; // YUAN
   const uniswapFactoryBTC = tokens.eBTC.uniswapFactory[network];
   const btcToken = tokens.eBTC.btcToken[network]; // WBTC
   const eBTC = await eBTCProxy.deployed();
@@ -103,9 +106,9 @@ async function deployRs(deployer, network) {
     btcToken
   );
 
-  const rebaseBTC = new web3.eth.Contract(eBTCRebaser.abi, eBTCRebaser.address);
-  const pairBTC = await rebaseBTC.methods.uniswap_pair().call();
-  const twapPairBTC = await rebaseBTC.methods.uniswapTwapPair().call();
+  const rebaseBTC = await eBTCRebaser.deployed();
+  const pairBTC = await rebaseBTC.uniswap_pair();
+  const twapPairBTC = await rebaseBTC.uniswapTwapPair();
   console.log("eBTC Uniswap pair is:", pairBTC); // eBTC/YUAN
   console.log("eBTC Uniswap TWAP pair is:", twapPairBTC); // eBTC/BTC
 

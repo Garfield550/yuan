@@ -37,7 +37,7 @@ async function deployToken(deployer) {
     "eETH",
     "eETH",
     18,
-    "2240000000000000000000000",
+    "9960000000000000000000000",
     eETHImplementation.address,
     "0x"
   );

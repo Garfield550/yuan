@@ -720,8 +720,7 @@ contract LPTokenWrapper {
     }
 }
 
-contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
-    // IERC20 public yuan = IERC20(0x4A3e164684812DfB684AC36457E7fA805087c68E);
+contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     address private _eBTC = address(0x53299D51Da54C8a4813Ce91a173c002dfe52fFC6);
     address private _eETH = address(0x47FBb1Bda9E62bb11e53eB98E50003a1D0198e93);
     IERC20 public eBTC = IERC20(_eBTC);
@@ -732,7 +731,7 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
 
     uint256 public starttime = 1611064240; // Tuesday, January 19, 2021 9:50:40 PM (UTC+8)
     uint256 public periodFinish = 0;
-    uint256 public initialRewardRate = 0;
+    // uint256 public initialRewardRate = 0;
     uint256 public initialEBTCRewardRate = 0;
     uint256 public initialEETHRewardRate = 0;
     uint256 public lastUpdateTime;
@@ -921,21 +920,21 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     }
 
     // TODO: Should add a new `rewardRate()` like function to call `getFixedRewardRatePerToken(uint256 _timestamp)`?
-    function rewardRate() public view returns (uint256) {
-        return getFixedRewardRate(block.timestamp);
-    }
+    // function rewardRate() public view returns (uint256) {
+    //     return getFixedRewardRate(block.timestamp);
+    // }
 
-    function getFixedRewardRate(uint256 _timestamp)
-        public
-        view
-        returns (uint256)
-    {
-        if (_timestamp < distributionTime) return 0;
-        return
-            initialRewardRate >>
-            (Math.min(_timestamp, periodFinish).sub(distributionTime) /
-                halveInterval);
-    }
+    // function getFixedRewardRate(uint256 _timestamp)
+    //     public
+    //     view
+    //     returns (uint256)
+    // {
+    //     if (_timestamp < distributionTime) return 0;
+    //     return
+    //         initialRewardRate >>
+    //         (Math.min(_timestamp, periodFinish).sub(distributionTime) /
+    //             halveInterval);
+    // }
 
     function getFixedRewardRatePerToken(uint256 _timestamp)
         public

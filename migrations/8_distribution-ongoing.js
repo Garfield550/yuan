@@ -45,8 +45,7 @@ async function deployDistribution(deployer, network, accounts) {
     // await deployer.deploy(Reward_Distributor, YUAN.address);
 
     // Deploy eBTCRewardDistributor and eBTCYUANIncentivizer contract
-    // await deployer.deploy(eBTCRewardDistributor, eBTCProxy.address);
-    await deployer.deploy(eBTCRewardDistributor, "0x53299D51Da54C8a4813Ce91a173c002dfe52fFC6");
+    await deployer.deploy(eBTCRewardDistributor, eBTCProxy.address);
     await deployer.deploy(eBTCYUANIncentivizer);
 
     // const yuanApy = new web3.eth.Contract(APY.abi, APY.address);
