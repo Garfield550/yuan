@@ -686,6 +686,11 @@ contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward); // with base scalingFactor
 
+    constructor (address yuanAddress, address eBTCAddress) public {
+        yuan = IERC20(yuanAddress);
+        eBTC = IERC20(eBTCAddress);
+    }
+
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();

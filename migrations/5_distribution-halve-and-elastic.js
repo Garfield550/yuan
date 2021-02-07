@@ -49,7 +49,7 @@ async function deployDistribution(deployer, network, accounts) {
     // await deployer.deploy(YUAN_ETHYUANPool);
     // await deployer.deploy(YUAN_ETHYAMPool);
     // await deployer.deploy(YUAN_ETHAMPLPool);
-    await deployer.deploy(eTokenUSDxUSDCPool);
+    await deployer.deploy(eTokenUSDxUSDCPool, eBTCProxy.address, eETHProxy.address);
 
     // const usdx_usdc_pool = new web3.eth.Contract(YUAN_USDxUSDCPool.abi, YUAN_USDxUSDCPool.address);
     // const usdx_yuan_pool = new web3.eth.Contract(YUAN_USDxYUANPool.abi, YUAN_USDxYUANPool.address);
@@ -88,7 +88,7 @@ async function deployDistribution(deployer, network, accounts) {
       // usdx_yuan_pool.methods.notifyRewardAmount(one_thousand_two_hundred.toString()).send({from:accounts[0]}),
       // eth_yam_pool.methods.notifyRewardAmount(twenty.toString()).send({from:accounts[0]}),
       // eth_ampl_pool.methods.notifyRewardAmount(twenty.toString()).send({ from: accounts[0]}),
-      eTokenUSDxUSDCPool.notifyRewardAmount(TWO_HUNDRED.toString(), ONE_HUNDRED.toString()),
+      eUSDxUSDCPOOL.notifyRewardAmount(TWO_HUNDRED.toString(), ONE_HUNDRED.toString()),
     ]);
 
     // await Promise.all([

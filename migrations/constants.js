@@ -34,7 +34,7 @@ const tokens = {
       testnet: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715",
       kovan: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715"
     },
-    ETHToken: { // WETH Token
+    ethToken: { // WETH Token
       mainnet: "",
       testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
       kovan: "0xd0A1E359811322d97991E03f863a0C30C2cF029C"

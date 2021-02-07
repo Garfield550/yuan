@@ -694,7 +694,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0x7291c312E6333e58E2f1264162435429bc09EC4B);
+    IERC20 public uni_lp = IERC20(0x7291c312E6333e58E2f1264162435429bc09EC4B); // USDx/USDC Pair
 
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
@@ -721,15 +721,15 @@ contract LPTokenWrapper {
 }
 
 contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
-    address private _eBTC = address(0x53299D51Da54C8a4813Ce91a173c002dfe52fFC6);
-    address private _eETH = address(0x47FBb1Bda9E62bb11e53eB98E50003a1D0198e93);
+    address private _eBTC;
+    address private _eETH;
     IERC20 public eBTC = IERC20(_eBTC);
     IERC20 public eETH = IERC20(_eETH);
 
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
 
-    uint256 public starttime = 1611064240; // Tuesday, January 19, 2021 9:50:40 PM (UTC+8)
+    uint256 public starttime = 1612600000; // Saturday, February 6, 2021 4:26:40 PM (UTC+8)
     uint256 public periodFinish = 0;
     // uint256 public initialRewardRate = 0;
     uint256 public initialEBTCRewardRate = 0;
@@ -747,6 +747,11 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+
+    constructor (address eBTCAddress, address eETHAddress) public {
+        _eBTC = eBTCAddress;
+        _eETH = eETHAddress;
+    }
 
     modifier checkStart() {
         require(block.timestamp >= starttime, "not start");

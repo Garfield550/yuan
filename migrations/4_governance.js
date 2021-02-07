@@ -16,7 +16,7 @@ const eBTCProxy = artifacts.require("eBTCDelegator");
 
 // Governance
 // deployed third
-const Gov = artifacts.require("YUANGovernorAlphaV2");
+const Gov = artifacts.require("GovernorAlphaV2");
 const Timelock = artifacts.require("Timelock");
 
 

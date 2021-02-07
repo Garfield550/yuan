@@ -21,9 +21,9 @@ const eBTCRewardDistributor = artifacts.require("eBTCRewardDistributor");
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  await Promise.all([
-    deployDistribution(deployer, network, accounts),
-  ]);
+  // await Promise.all([
+  //   deployDistribution(deployer, network, accounts),
+  // ]);
 }
 
 module.exports = migration;
@@ -32,6 +32,10 @@ module.exports = migration;
 
 
 async function deployDistribution(deployer, network, accounts) {
+  console.log('YUAN address:  ', YUANProxy.address);
+  console.log('eBTC address:  ', eBTCProxy.address);
+  // console.log('eETH address:  ', eETHProxy.address);
+
   // const TL = await Timelock.deployed();
   // const YUAN = await YUANProxy.deployed();
   const eBTC = await eBTCProxy.deployed();
@@ -46,7 +50,7 @@ async function deployDistribution(deployer, network, accounts) {
 
     // Deploy eBTCRewardDistributor and eBTCYUANIncentivizer contract
     await deployer.deploy(eBTCRewardDistributor, eBTCProxy.address);
-    await deployer.deploy(eBTCYUANIncentivizer);
+    await deployer.deploy(eBTCYUANIncentivizer, YUANProxy.address, eBTCProxy.address);
 
     // const yuanApy = new web3.eth.Contract(APY.abi, APY.address);
     // const reserveToken = "0xeb269732ab75A6fD61Ea60b06fE994cD32a83549";
