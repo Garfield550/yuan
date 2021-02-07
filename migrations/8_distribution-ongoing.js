@@ -14,7 +14,7 @@ const Timelock = artifacts.require("Timelock");
 // deployed fifth
 // const YUAN_ETHIncentivizer = artifacts.require("YUANETHIncentivizer");
 // const YUAN_USDxIncentivizer = artifacts.require("YUANUSDxIncentivizer");
-// const Reward_Distributor = artifacts.require("RewardDistributor");
+const Reward_Distributor = artifacts.require("RewardDistributor");
 const eBTCYUANIncentivizer = artifacts.require("eBTCYUANIncentivizer");
 const eBTCRewardDistributor = artifacts.require("eBTCRewardDistributor");
 
@@ -56,7 +56,7 @@ async function deployDistribution(deployer, network, accounts) {
     // const stableSwapPath = [YUAN.address, reserveToken];
     // const ethSwapPath = [weth, reserveToken];
 
-    // const incentive_distribution = new web3.eth.Contract(Reward_Distributor.abi, Reward_Distributor.address);
+    const incentive_distribution = await Reward_Distributor.deployed();
     // const yaun_eth_pool = new web3.eth.Contract(YUAN_ETHIncentivizer.abi, YUAN_ETHIncentivizer.address);
     // const yaun_usdx_pool = new web3.eth.Contract(YUAN_USDxIncentivizer.abi, YUAN_USDxIncentivizer.address);
     const eBTCYUANPool = await eBTCYUANIncentivizer.deployed();
@@ -120,6 +120,6 @@ async function deployDistribution(deployer, network, accounts) {
   // console.log("YUAN ETH Pool:      ", YUAN_ETHIncentivizer.address);
   // console.log("YUAN USDx Pool:     ", YUAN_USDxIncentivizer.address);
   console.log("eBTC YUAN Pool:     ", eBTCYUANIncentivizer.address);
-  // console.log("YUAN Reward Distributor: ", Reward_Distributor.address);
+  console.log("YUAN Reward Distributor: ", Reward_Distributor.address);
   console.log("eBTC Reward Distributor: ", eBTCRewardDistributor.address, "\n")
 }

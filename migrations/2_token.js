@@ -22,15 +22,15 @@ module.exports = migration;
 // ============ Deploy Functions ============
 
 async function deployToken(deployer) {
-  await deployer.deploy(YUANImplementation);
-  await deployer.deploy(YUANProxy,
-    "YUAN",
-    "YUAN",
-    18,
-    "2240000000000000000000000", // print extra few mil for user
-    YUANImplementation.address,
-    "0x"
-  );
+  // await deployer.deploy(YUANImplementation);
+  // await deployer.deploy(YUANProxy,
+  //   "YUAN",
+  //   "YUAN",
+  //   18,
+  //   "2240000000000000000000000", // print extra few mil for user
+  //   YUANImplementation.address,
+  //   "0x"
+  // );
   // eETH
   await deployer.deploy(eETHImplementation);
   await deployer.deploy(eETHProxy,
