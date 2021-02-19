@@ -754,7 +754,8 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
 
     modifier updateReward(address account) {
         (uint256 _eBTCRewardPerTokenStored, uint256 _eETHRewardPerTokenStored) = rewardPerToken();
-        lastUpdateTime = lastTimeRewardApplicable();
+        rewardPerTokenStored[_eBTC] = _eBTCRewardPerTokenStored;
+        rewardPerTokenStored[_eETH] = _eETHRewardPerTokenStored;
         if (account != address(0)) {
             (uint256 _eBTCEarned, uint256 _eETHEarned) = earned(account);
             rewards[_eBTC][account] = _eBTCEarned;
@@ -762,6 +763,7 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
             userRewardPerTokenPaid[_eBTC][account] = _eBTCRewardPerTokenStored;
             userRewardPerTokenPaid[_eETH][account] = _eETHRewardPerTokenStored;
         }
+        lastUpdateTime = lastTimeRewardApplicable();
         _;
     }
 
