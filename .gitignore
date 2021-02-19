@@ -109,3 +109,5 @@ dist
 .tern-port
 
 .secret
+
+.DS_Store

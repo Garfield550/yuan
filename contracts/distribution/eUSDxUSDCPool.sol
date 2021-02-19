@@ -733,11 +733,8 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     uint256 public initialEETHRewardRate;
     uint256 public lastUpdateTime;
     uint256 public distributionTime;
-    // uint256 public rewardPerTokenStored;
     mapping(address => uint256) public rewardPerTokenStored;
-    // mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => mapping(address => uint256)) public userRewardPerTokenPaid;
-    // mapping(address => uint256) public rewards;
     mapping(address => mapping(address => uint256)) public rewards;
 
     event RewardAdded(uint256 eBTCReward, uint256 eETHReward);
