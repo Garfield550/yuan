@@ -9,6 +9,7 @@ const APY = artifacts.require("CalculateApy");
 // deployed second
 const YUANProxy = artifacts.require("YUANDelegator");
 const eBTCProxy = artifacts.require("eBTCDelegator");
+const eETHProxy = artifacts.require("eETHDelegator");
 const Timelock = artifacts.require("Timelock");
 
 // deployed fifth
@@ -17,6 +18,8 @@ const Timelock = artifacts.require("Timelock");
 const Reward_Distributor = artifacts.require("RewardDistributor");
 const eBTCYUANIncentivizer = artifacts.require("eBTCYUANIncentivizer");
 const eBTCRewardDistributor = artifacts.require("eBTCRewardDistributor");
+const eETHYUANIncentivizer = artifacts.require("eETHYUANIncentivizer");
+const eETHRewardDistributor = artifacts.require("eETHRewardDistributor");
 
 // ============ Main Migration ============
 
@@ -34,11 +37,12 @@ module.exports = migration;
 async function deployDistribution(deployer, network, accounts) {
   console.log('YUAN address:  ', YUANProxy.address);
   console.log('eBTC address:  ', eBTCProxy.address);
-  // console.log('eETH address:  ', eETHProxy.address);
+  console.log('eETH address:  ', eETHProxy.address);
 
   // const TL = await Timelock.deployed();
   // const YUAN = await YUANProxy.deployed();
   const eBTC = await eBTCProxy.deployed();
+  const eETH = await eETHProxy.deployed();
 
   if (network != "test") {
     // deploy apy contract
@@ -51,6 +55,9 @@ async function deployDistribution(deployer, network, accounts) {
     // Deploy eBTCRewardDistributor and eBTCYUANIncentivizer contract
     await deployer.deploy(eBTCRewardDistributor, eBTCProxy.address);
     await deployer.deploy(eBTCYUANIncentivizer, YUANProxy.address, eBTCProxy.address);
+    // Deploy eETHRewardDistributor and eETHYUANIncentivizer contract
+    await deployer.deploy(eETHRewardDistributor, eETHProxy.address);
+    await deployer.deploy(eETHYUANIncentivizer, YUANProxy.address, eETHProxy.address);
 
     // const yuanApy = new web3.eth.Contract(APY.abi, APY.address);
     // const reserveToken = "0xeb269732ab75A6fD61Ea60b06fE994cD32a83549";
@@ -65,6 +72,8 @@ async function deployDistribution(deployer, network, accounts) {
     // const yaun_usdx_pool = new web3.eth.Contract(YUAN_USDxIncentivizer.abi, YUAN_USDxIncentivizer.address);
     const eBTCYUANPool = await eBTCYUANIncentivizer.deployed();
     const eBTCRD = await eBTCRewardDistributor.deployed();
+    const eETHYUANPool = await eETHYUANIncentivizer.deployed();
+    const eETHRD = await eETHRewardDistributor.deployed();
 
     console.log("Setting distributor:");
     await Promise.all([
@@ -76,8 +85,8 @@ async function deployDistribution(deployer, network, accounts) {
       // Set RewardDistribution address
       // yaun_eth_pool.methods.setRewardDistribution(Reward_Distributor.address).send({ from: accounts[0], gas: 100000}),
       // yaun_usdx_pool.methods.setRewardDistribution(Reward_Distributor.address).send({from: accounts[0], gas: 100000}),
-      // eBTCYUANPool.setRewardDistribution(Reward_Distributor.address, eBTCRewardDistributor.address)
-      eBTCYUANPool.setRewardDistribution(Reward_Distributor.address, eBTCRewardDistributor.address)
+      eBTCYUANPool.setRewardDistribution(Reward_Distributor.address, eBTCRewardDistributor.address),
+      eETHYUANPool.setRewardDistribution(Reward_Distributor.address, eETHRewardDistributor.address)
     ]);
 
     const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -101,8 +110,18 @@ async function deployDistribution(deployer, network, accounts) {
       //   TWO_HUNDRED_EIGHTY.toString(),
       //   ONE_YEAR
       // ),
+      // incentive_distribution.addRecipientAndSetReward(
+      //   eETHYUANIncentivizer.address,
+      //   TWO_HUNDRED_EIGHTY.toString(),
+      //   ONE_YEAR
+      // ),
       eBTCRD.addRecipientAndSetReward(
         eBTCYUANIncentivizer.address,
+        TWO_HUNDRED_EIGHTY.toString(),
+        ONE_YEAR
+      ),
+      eETHRD.addRecipientAndSetReward(
+        eETHYUANIncentivizer.address,
         TWO_HUNDRED_EIGHTY.toString(),
         ONE_YEAR
       )
@@ -117,6 +136,7 @@ async function deployDistribution(deployer, network, accounts) {
 
     // await YUAN._setIncentivizer(Reward_Distributor.address);
     await eBTC._setIncentivizer(eBTCRewardDistributor.address);
+    await eETH._setIncentivizer(eETHRewardDistributor.address);
   }
 
   // console.log("Calculate APY is:   ", APY.address,"\n")
@@ -124,6 +144,9 @@ async function deployDistribution(deployer, network, accounts) {
   // console.log("YUAN ETH Pool:      ", YUAN_ETHIncentivizer.address);
   // console.log("YUAN USDx Pool:     ", YUAN_USDxIncentivizer.address);
   console.log("eBTC YUAN Pool:     ", eBTCYUANIncentivizer.address);
+  console.log("eETH YUAN Pool:     ", eETHYUANIncentivizer.address);
   console.log("YUAN Reward Distributor: ", Reward_Distributor.address);
-  console.log("eBTC Reward Distributor: ", eBTCRewardDistributor.address, "\n")
+  console.log("eBTC Reward Distributor: ", eBTCRewardDistributor.address);
+  console.log("eETH Reward Distributor: ", eETHRewardDistributor.address);
+  console.log("\n");
 }

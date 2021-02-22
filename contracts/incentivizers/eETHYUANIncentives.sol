@@ -606,21 +606,21 @@ pragma solidity 0.5.15;
 
 contract IRewardDistributionRecipient is Ownable {
     address public yuanRewardDistribution;
-    address public eBTCRewardDistribution;
+    address public eETHRewardDistribution;
 
     function notifyRewardAmountAndDuration(uint256 reward, uint256 _duration) external;
 
     modifier onlyRewardDistribution() {
         require(
-            _msgSender() == yuanRewardDistribution || _msgSender() == eBTCRewardDistribution,
+            _msgSender() == yuanRewardDistribution || _msgSender() == eETHRewardDistribution,
             "Caller is not reward distribution"
         );
         _;
     }
 
-    function setRewardDistribution(address _yuanRewardDistribution, address _eBTCRewardDistribution) external onlyOwner {
+    function setRewardDistribution(address _yuanRewardDistribution, address _eETHRewardDistribution) external onlyOwner {
         yuanRewardDistribution = _yuanRewardDistribution;
-        eBTCRewardDistribution = _eBTCRewardDistribution;
+        eETHRewardDistribution = _eETHRewardDistribution;
     }
 }
 
@@ -630,7 +630,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0xAd09621AaAdCbce3d59D3ad16FA26d73bbe0Bb79); // eBTC/WBTC
+    IERC20 public uni_lp = IERC20(0x2Cde3D3D0F24D71EB14C8e5e57dB19A9D903d704); // eETH/WETH
 
     uint256 private _totalSupply;
 
@@ -665,9 +665,9 @@ interface IRewardDistribution {
     function transferReward(address to, uint256 value) external;
 }
 
-contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
+contract eETHYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
     IERC20 public yuan = IERC20(0x08c89ADe94f830BA094529B782576e8525FB93d6); // YUAN
-    IERC20 public eBTC = IERC20(0xd4206dD1E2D51c97a4925E15eBF41644eA6EbF7C); // eBTC
+    IERC20 public eETH = IERC20(0x26211307D488D690B224FaDFAB3EeAE22CD6EEe7); // eETH
     uint256 public duration;
 
     uint256 public starttime = 1611817608; // 2021/01/28 15:07:0 (UTC+8)
@@ -686,9 +686,9 @@ contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward); // with base scalingFactor
 
-    constructor (address yuanAddress, address eBTCAddress) public {
+    constructor (address yuanAddress, address eETHAddress) public {
         yuan = IERC20(yuanAddress);
-        eBTC = IERC20(eBTCAddress);
+        eETH = IERC20(eETHAddress);
     }
 
     modifier updateReward(address account) {
@@ -742,11 +742,11 @@ contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
             uint256 yuanScalingFactor = YUAN(address(yuan)).yuansScalingFactor();
             uint256 yuanTrueReward = reward.mul(yuanScalingFactor).div(10**18);
 
-            uint256 eBTCScalingFactor = YUAN(address(eBTC)).yuansScalingFactor();
-            uint256 eBTCTrueReward = reward.mul(eBTCScalingFactor).div(10**18);
+            uint256 eETHScalingFactor = YUAN(address(eETH)).yuansScalingFactor();
+            uint256 eETHTrueReward = reward.mul(eETHScalingFactor).div(10**18);
 
             IRewardDistribution(yuanRewardDistribution).transferReward(msg.sender, yuanTrueReward);
-            IRewardDistribution(eBTCRewardDistribution).transferReward(msg.sender, eBTCTrueReward);
+            IRewardDistribution(eETHRewardDistribution).transferReward(msg.sender, eETHTrueReward);
 
             emit RewardPaid(msg.sender, reward);
         }
@@ -801,7 +801,7 @@ contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
         // cant take staked asset
         require(_token != uni_lp, "uni_lp");
         // cant take reward asset
-        require(_token != yuan || _token != eBTC, "not YUAN or eBTC");
+        require(_token != yuan || _token != eETH, "not YUAN or eETH");
 
         // transfer to
         _token.transfer(to, amount);
