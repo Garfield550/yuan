@@ -721,8 +721,8 @@ contract LPTokenWrapper {
 }
 
 contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
-    address public _eBTC;
-    address public _eETH;
+    address private _eBTC;
+    address private _eETH;
 
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
@@ -905,23 +905,6 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
 
         return (_eBTCResult, _eETHResult);
     }
-
-    // TODO: Should add a new `rewardRate()` like function to call `getFixedRewardRatePerToken(uint256 _timestamp)`?
-    // function rewardRate() public view returns (uint256) {
-    //     return getFixedRewardRate(block.timestamp);
-    // }
-
-    // function getFixedRewardRate(uint256 _timestamp)
-    //     public
-    //     view
-    //     returns (uint256)
-    // {
-    //     if (_timestamp < distributionTime) return 0;
-    //     return
-    //         initialRewardRate >>
-    //         (Math.min(_timestamp, periodFinish).sub(distributionTime) /
-    //             halveInterval);
-    // }
 
     function getFixedRewardRatePerToken(uint256 _timestamp)
         public
