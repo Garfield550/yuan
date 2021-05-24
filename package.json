@@ -4,7 +4,7 @@
   "description": "YUAN protocol repo",
   "main": "index.js",
   "engines": {
-    "node": "^12.0.0"
+    "node": "^14.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
