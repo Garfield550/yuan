@@ -49,7 +49,7 @@ async function deployRs(deployer, network) {
     Oracle.address
   );
 
-  const rebase = YUANRebaser.deployed();
+  const rebase = await YUANRebaser.deployed();
   const pair = await rebase.uniswap_pair();
   console.log("YUAN Uniswap pair is:", pair); // YUAN/USDx
 

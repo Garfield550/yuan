@@ -44,7 +44,7 @@ async function deployDistribution(deployer, network, accounts) {
     const yETHUSDxPool = await YUANETHUSDxPool.deployed();
     const yETHDAIPool = await YUANETHDAIPool.deployed();
 
-    console.log("Setting distributor:");
+    console.log("\nSetting distributor...");
     await Promise.all([
       yETHUSDCPool.setRewardDistribution(accounts[0]),
       yETHUSDTPool.setRewardDistribution(accounts[0]),
@@ -52,7 +52,7 @@ async function deployDistribution(deployer, network, accounts) {
       yETHDAIPool.setRewardDistribution(accounts[0]),
     ]);
 
-    console.log("Transfering and notifying:");
+    console.log("Transfering and notifying...");
     await Promise.all([
       YUAN.transfer(YUANETHUSDCPool.address, TWENTY.toString()),
       YUAN.transfer(YUANETHUSDTPool.address, TWENTY.toString()),
@@ -82,6 +82,7 @@ async function deployDistribution(deployer, network, accounts) {
     ]);
   }
 
+  console.log("\n");
   console.log("YUANETHUSDC contract:   ", YUANETHUSDCPool.address);
   console.log("YUANETHUSDT contract:   ", YUANETHUSDTPool.address);
   console.log("YUANETHUSDx contract:   ", YUANETHUSDxPool.address);

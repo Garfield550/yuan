@@ -76,7 +76,7 @@ async function deployDistribution(deployer, network, accounts) {
     const eETHYUANPool = await eETHYUANIncentivizer.deployed();
     const eETHRD = await eETHRewardDistributor.deployed();
 
-    console.log("Setting distributor:");
+    console.log("\nSetting distributor...");
     await Promise.all([
       // APY config
       yuanAPY.setYuanAddress(YUANProxy.address),
@@ -92,7 +92,7 @@ async function deployDistribution(deployer, network, accounts) {
 
     const ONE_YEAR = 60 * 60 * 24 * 365;
 
-    console.log("Transfering and notifying:");
+    console.log("Transfering and notifying...");
     await Promise.all([
       // incentives is a minter and prepopulates itself.
       yuanRD.addRecipientAndSetReward(
@@ -143,13 +143,14 @@ async function deployDistribution(deployer, network, accounts) {
     await eETH._setIncentivizer(eETHRewardDistributor.address);
   }
 
+  console.log("\n");
   console.log("Calculate APY is:   ", APY.address);
 
   console.log("YUAN ETH Pool:      ", YUANETHIncentivizer.address);
   console.log("YUAN USDx Pool:     ", YUANUSDxIncentivizer.address);
   console.log("eBTC YUAN Pool:     ", eBTCYUANIncentivizer.address);
   console.log("eETH YUAN Pool:     ", eETHYUANIncentivizer.address);
-  console.log("YUAN Reward Distributor: ", Reward_Distributor.address);
+  console.log("YUAN Reward Distributor: ", YUANRewardDistributor.address);
   console.log("eBTC Reward Distributor: ", eBTCRewardDistributor.address);
   console.log("eETH Reward Distributor: ", eETHRewardDistributor.address);
   console.log("\n");
