@@ -105,15 +105,11 @@ async function deployDistribution(deployer, network, accounts) {
         TWO_HUNDRED_EIGHTY.toString(),
         ONE_YEAR
       ),
-      yuanRD.addRecipientAndSetReward(
-        eBTCYUANIncentivizer.address,
-        TWO_HUNDRED_EIGHTY.toString(),
-        ONE_YEAR
+      yuanRD.addRecipient(
+        eBTCYUANIncentivizer.address
       ),
-      yuanRD.addRecipientAndSetReward(
-        eETHYUANIncentivizer.address,
-        ONE_HUNDRED_TWENTY.toString(),
-        ONE_YEAR
+      yuanRD.addRecipient(
+        eETHYUANIncentivizer.address
       ),
       eBTCRD.addRecipientAndSetReward(
         eBTCYUANIncentivizer.address,

@@ -88,7 +88,7 @@ module.exports = {
         },
 
         testnet: {
-            provider: () => new HDWalletProvider(privateKeys, `https://data-seed-prebsc-1-s1.binance.org:8545`, 0 , keyLength),
+            provider: () => new HDWalletProvider(privateKeys, `https://data-seed-prebsc-1-s1.binance.org:8545/`, 0 , keyLength),
             network_id: 97, // bsc testnet's id
             gas: 6721975,
             gasPrice: 30000000000, // Gas price used for deploys: 10gwei
