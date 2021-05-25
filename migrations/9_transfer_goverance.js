@@ -1,5 +1,3 @@
-var fs = require('fs')
-
 // ============ Contracts ============
 
 
@@ -12,21 +10,21 @@ const eBTCProxy = artifacts.require("eBTCDelegator");
 const YUANReserves = artifacts.require("YUANReservesV2");
 const YUANRebaser = artifacts.require("YUANRebaser");
 const eETHReserves = artifacts.require("eETHReserves");
-const YUANRebaserV2 = artifacts.require("eETHRebaser");
+const eETHRebaser_C = artifacts.require("eETHRebaser");
 const eBTCReserves = artifacts.require("eBTCReserves");
 const eBTCRebaser_C = artifacts.require("eBTCRebaser");
 
 // deployed fourth
-const Gov = artifacts.require("GovernorAlpha");
+const Gov = artifacts.require("GovernorAlphaV2");
 const Timelock = artifacts.require("Timelock");
 
 
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  // await Promise.all([
-  //   deployDistribution(deployer),
-  // ]);
+  await Promise.all([
+    deployDistribution(deployer),
+  ]);
 }
 
 module.exports = migration;
@@ -35,14 +33,17 @@ module.exports = migration;
 
 
 async function deployDistribution(deployer) {
+  const tl = await Timelock.deployed();
+  const gov = await Gov.deployed();
+
   const YUAN = await YUANProxy.deployed();
   const yReserves = await YUANReserves.deployed()
   const yRebaser = await YUANRebaser.deployed()
-  const tl = await Timelock.deployed();
-  const gov = await Gov.deployed();
+
   const eETH = await eETHProxy.deployed();
   const eETHReserve = await eETHReserves.deployed();
-  const eETHRebaser = await YUANRebaserV2.deployed();
+  const eETHRebaser = await eETHRebaser_C.deployed();
+
   const eBTC = await eBTCProxy.deployed();
   const eBTCReserve = await eBTCReserves.deployed();
   const eBTCRebaser = await eBTCRebaser_C.deployed();

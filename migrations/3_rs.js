@@ -32,30 +32,30 @@ module.exports = migration;
 
 async function deployRs(deployer, network) {
   //#region YUAN Deploy
-  // const reserveToken = tokens.yuan.reserveToken[network]; // USDx
-  // const uniswapFactory = tokens.yuan.uniswapFactory[network];
-  // const oraclePoster = tokens.yuan.oraclePoster[network];
+  const reserveToken = tokens.yuan.reserveToken[network]; // USDx
+  const uniswapFactory = tokens.yuan.uniswapFactory[network];
+  const oraclePoster = tokens.yuan.oraclePoster[network];
   const yuan = await YUANProxy.deployed();
 
-  // await deployer.deploy(Oracle, oraclePoster, "50000000000000000");
-  // await deployer.deploy(YUANReserves, reserveToken, YUANProxy.address);
-  // await deployer.deploy(YUANRebaser,
-  //   YUANProxy.address,
-  //   reserveToken,
-  //   uniswapFactory,
-  //   [YUANReserves.address, ZERO, ZERO],
-  //   ZERO,
-  //   0,
-  //   Oracle.address
-  // );
+  await deployer.deploy(Oracle, oraclePoster, "50000000000000000");
+  await deployer.deploy(YUANReserves, reserveToken, YUANProxy.address);
+  await deployer.deploy(YUANRebaser,
+    YUANProxy.address,
+    reserveToken,
+    uniswapFactory,
+    [YUANReserves.address, ZERO, ZERO],
+    ZERO,
+    0,
+    Oracle.address
+  );
 
-  // const rebase = new web3.eth.Contract(YUANRebaser.abi, YUANRebaser.address);
-  // const pair = await rebase.methods.uniswap_pair().call();
-  // console.log("YUAN Uniswap pair is:", pair); // YUAN/USDx
+  const rebase = YUANRebaser.deployed();
+  const pair = await rebase.uniswap_pair();
+  console.log("YUAN Uniswap pair is:", pair); // YUAN/USDx
 
-  // await yuan._setRebaser(YUANRebaser.address);
-  // const reserves = await YUANReserves.deployed();
-  // await reserves._setRebaser(YUANRebaser.address);
+  await yuan._setRebaser(YUANRebaser.address);
+  const reserves = await YUANReserves.deployed();
+  await reserves._setRebaser(YUANRebaser.address);
   //#endregion
 
   //#region eETH Deploy

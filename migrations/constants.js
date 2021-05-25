@@ -29,11 +29,6 @@ const tokens = {
       testnet: "0x32CE36F6eA8d97f9fC19Aab83b9c6D2F52D74470",
       kovan: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
     },
-    oraclePoster: {
-      mainnet: "0x6e8e3697Ff41d021D4D7a988c3CDF504cd6BD26f",
-      testnet: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715",
-      kovan: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715"
-    },
     ethToken: { // WETH Token
       mainnet: "",
       testnet: "0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378",
@@ -50,11 +45,6 @@ const tokens = {
       mainnet: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
       testnet: "0x32CE36F6eA8d97f9fC19Aab83b9c6D2F52D74470",
       kovan: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
-    },
-    oraclePoster: {
-      mainnet: "0x6e8e3697Ff41d021D4D7a988c3CDF504cd6BD26f",
-      testnet: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715",
-      kovan: "0x923Fe0dc3b2b3477d921BA8859e6b68F5cD97715"
     },
     btcToken: { // WBTC Token
       mainnet: "",

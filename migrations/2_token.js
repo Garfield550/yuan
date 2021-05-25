@@ -22,22 +22,22 @@ module.exports = migration;
 // ============ Deploy Functions ============
 
 async function deployToken(deployer) {
-  // await deployer.deploy(YUANImplementation);
-  // await deployer.deploy(YUANProxy,
-  //   "YUAN",
-  //   "YUAN",
-  //   18,
-  //   "2240000000000000000000000", // print extra few mil for user
-  //   YUANImplementation.address,
-  //   "0x"
-  // );
+  await deployer.deploy(YUANImplementation);
+  await deployer.deploy(YUANProxy,
+    "YUAN",
+    "YUAN",
+    18,
+    "2240000000000000000000000", // print extra few mil for user
+    YUANImplementation.address,
+    "0x"
+  );
   // eETH
   await deployer.deploy(eETHImplementation);
   await deployer.deploy(eETHProxy,
     "eETH",
     "eETH",
     18,
-    "9960000000000000000000000",
+    "4480000000000000000000000",
     eETHImplementation.address,
     "0x"
   );
@@ -47,7 +47,7 @@ async function deployToken(deployer) {
     "eBTC",
     "eBTC",
     18,
-    "9876543210000000000000000",
+    "8960000000000000000000000",
     eBTCImplementation.address,
     "0x"
   );

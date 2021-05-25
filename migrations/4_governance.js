@@ -3,16 +3,7 @@
 
 // Token
 // deployed first
-// const YUANImplementation = artifacts.require("YUANDelegate");
 const YUANProxy = artifacts.require("YUANDelegator");
-const eETHProxy = artifacts.require("eETHDelegator");
-const eBTCProxy = artifacts.require("eBTCDelegator");
-
-// Rs
-// deployed second
-// const YUANReserves = artifacts.require("YUANReservesV2");
-// const YUANRebaser = artifacts.require("YUANRebaser");
-// const YUANRebaserV2 = artifacts.require("YUANRebaserV2");
 
 // Governance
 // deployed third
