@@ -234,8 +234,8 @@ contract eBTCRebaser {
         // 5%
         deviationThreshold = 5 * 10**16;
 
-        // 20 minutes
-        rebaseWindowLengthSec = 10 * 60;
+        // 60 minutes
+        rebaseWindowLengthSec = 60 * 60;
 
         // Changed in deployment scripts to facilitate protocol initiation
         gov = msg.sender;

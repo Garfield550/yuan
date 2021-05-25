@@ -664,7 +664,7 @@ contract YUANUSDxIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
     IERC20 public yuan;
     uint256 public duration;
 
-    uint256 public starttime = 1605322800; // 2020/11/14 11:0:0 (UTC+8)
+    uint256 public starttime = 1621994400; // Wednesday, May 26, 2021 10:00:00 AM GMT+08:00
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0; // with base scalingFactor
     uint256 public lastUpdateTime;

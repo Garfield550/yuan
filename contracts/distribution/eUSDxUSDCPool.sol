@@ -727,7 +727,7 @@ contract eUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
 
-    uint256 public starttime = 1612600000; // Saturday, February 6, 2021 4:26:40 PM (UTC+8)
+    uint256 public starttime = 1621994400; // Wednesday, May 26, 2021 10:00:00 AM GMT+08:00
     uint256 public periodFinish;
     uint256 public initialEBTCRewardRate;
     uint256 public initialEETHRewardRate;

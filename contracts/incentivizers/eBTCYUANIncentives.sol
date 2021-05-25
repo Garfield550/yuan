@@ -666,11 +666,11 @@ interface IRewardDistribution {
 }
 
 contract eBTCYUANIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
-    IERC20 public yuan = IERC20(0x08c89ADe94f830BA094529B782576e8525FB93d6); // YUAN
-    IERC20 public eBTC = IERC20(0xd4206dD1E2D51c97a4925E15eBF41644eA6EbF7C); // eBTC
+    IERC20 public yuan;
+    IERC20 public eBTC;
     uint256 public duration;
 
-    uint256 public starttime = 1611817608; // 2021/01/28 15:07:0 (UTC+8)
+    uint256 public starttime = 1621994400; // Wednesday, May 26, 2021 10:00:00 AM GMT+08:00
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0; // with base scalingFactor
     uint256 public lastUpdateTime;

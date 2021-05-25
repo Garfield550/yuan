@@ -109,7 +109,7 @@ contract eETHRebaser {
     bool public rebasingActive;
 
     /// @notice delays rebasing activation to facilitate liquidity
-    uint256 public constant rebaseDelay = 9 days;
+    uint256 public constant rebaseDelay = 1 hours;
 
     /// @notice Time of TWAP initialization
     uint256 public timeOfTWAPInit;
