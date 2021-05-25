@@ -661,7 +661,7 @@ interface IRewardDistribution {
 }
 
 contract YUANUSDxIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
-    IERC20 public yuan = IERC20(0x4A3e164684812DfB684AC36457E7fA805087c68E);
+    IERC20 public yuan;
     uint256 public duration;
 
     uint256 public starttime = 1605322800; // 2020/11/14 11:0:0 (UTC+8)
@@ -679,6 +679,10 @@ contract YUANUSDxIncentivizer is LPTokenWrapper, IRewardDistributionRecipient {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward); // with base scalingFactor
+
+    constructor (address _yuan) public {
+        yuan = IERC20(_yuan);
+    }
 
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();

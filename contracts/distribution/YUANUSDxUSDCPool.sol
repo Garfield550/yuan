@@ -719,7 +719,7 @@ contract LPTokenWrapper {
 }
 
 contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
-    IERC20 public yuan = IERC20(0x4A3e164684812DfB684AC36457E7fA805087c68E);
+    IERC20 public yuan;
     uint256 public constant DURATION = 18 days;
     uint256 public constant halveInterval = 1 days;
 
@@ -736,6 +736,10 @@ contract YUANUSDxUSDCPool is LPTokenWrapper, IRewardDistributionRecipient {
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+
+    constructor (address _yuan) public {
+        yuan = IERC20(_yuan);
+    }
 
     modifier checkStart() {
         require(block.timestamp >= starttime, "not start");
