@@ -1,4 +1,4 @@
-var fs = require('fs')
+const { TWENTY } = require("./constants");
 
 // ============ Contracts ============
 
@@ -7,19 +7,18 @@ var fs = require('fs')
 const YUANProxy = artifacts.require("YUANDelegator");
 const Timelock = artifacts.require("Timelock");
 
-
-const YUAN_ETHUSDCPool = artifacts.require("YUANETHUSDCPool");
-const YUAN_ETHDAIPool = artifacts.require("YUANETHDAIPool");
-const YUAN_ETHUSDTPool = artifacts.require("YUANETHUSDTPool");
-const YUAN_ETHUSDxPool = artifacts.require("YUANETHUSDxPool");
+const YUANETHUSDCPool = artifacts.require("YUANETHUSDCPool");
+const YUANETHUSDTPool = artifacts.require("YUANETHUSDTPool");
+const YUANETHUSDxPool = artifacts.require("YUANETHUSDxPool");
+const YUANETHDAIPool = artifacts.require("YUANETHDAIPool");
 
 
 // ============ Main Migration ============
 
 const migration = async (deployer, network, accounts) => {
-  // await Promise.all([
-  //   deployDistribution(deployer, network, accounts),
-  // ]);
+  await Promise.all([
+    deployDistribution(deployer, network, accounts),
+  ]);
 }
 
 module.exports = migration;
@@ -28,85 +27,64 @@ module.exports = migration;
 
 
 async function deployDistribution(deployer, network, accounts) {
-  console.log(network)
-  let YUAN = await YUANProxy.deployed();
-  let tl = await Timelock.deployed();
+  const YUAN = await YUANProxy.deployed();
+  const TL = await Timelock.deployed();
+
+  console.log('YUAN address:  ', YUANProxy.address);
 
 
   if (network != "test") {
+    await deployer.deploy(YUANETHUSDCPool, YUANProxy.address);
+    await deployer.deploy(YUANETHUSDTPool, YUANProxy.address);
+    await deployer.deploy(YUANETHUSDxPool, YUANProxy.address);
+    await deployer.deploy(YUANETHDAIPool, YUANProxy.address);
 
-    await deployer.deploy(YUAN_ETHUSDCPool);
-    await deployer.deploy(YUAN_ETHDAIPool);
-    await deployer.deploy(YUAN_ETHUSDTPool);
-    await deployer.deploy(YUAN_ETHUSDxPool);
+    const yETHUSDCPool = await YUANETHUSDCPool.deployed();
+    const yETHUSDTPool = await YUANETHUSDTPool.deployed();
+    const yETHUSDxPool = await YUANETHUSDxPool.deployed();
+    const yETHDAIPool = await YUANETHDAIPool.deployed();
 
-    let eth_usdc_pool = new web3.eth.Contract(YUAN_ETHUSDCPool.abi, YUAN_ETHUSDCPool.address);
-    let eth_dai_pool = new web3.eth.Contract(YUAN_ETHDAIPool.abi, YUAN_ETHDAIPool.address);
-    let eth_usdt_pool = new web3.eth.Contract(YUAN_ETHUSDTPool.abi, YUAN_ETHUSDTPool.address);
-    let eth_usdx_pool = new web3.eth.Contract(YUAN_ETHUSDxPool.abi, YUAN_ETHUSDxPool.address);
-
-    console.log("setting distributor");
+    console.log("Setting distributor:");
     await Promise.all([
+      yETHUSDCPool.setRewardDistribution(accounts[0]),
+      yETHUSDTPool.setRewardDistribution(accounts[0]),
+      yETHUSDxPool.setRewardDistribution(accounts[0]),
+      yETHDAIPool.setRewardDistribution(accounts[0]),
+    ]);
 
-      eth_usdc_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0]}),
-      eth_dai_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0]}),
-      eth_usdt_pool.methods.setRewardDistribution(accounts[0]).send({from: accounts[0]}),
-      eth_usdx_pool.methods.setRewardDistribution(accounts[0]).send({ from: accounts[0] }),
-  ]);
-
-    // usdx-usdc: 600,000
-    let six_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(600));
-    // yuan-eth: 200,000
-    let two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(200));
-    // usdx-yuan:1,200,000
-    let one_thousand_two_hundred = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(1200));
-    // usdc-eth, dai-eth, usdt-eth, usdx-eth, yam-eth, ampl-eth, uni-eth, yfi-eth,
-    // df-eth, yfi-eth, link-eth, band-eth: 20,000
-    let twenty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(20));
-    // incentive yuan-usdx: 40w * 30% => 120,000
-    let one_hundred_twenty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(120));
-    // incentive yuan-eth: 40w * 70% => 280,000
-    let two_hundred_eighty = web3.utils.toBN(10 ** 3).mul(web3.utils.toBN(10 ** 18)).mul(web3.utils.toBN(280));
-
-    console.log("transfering and notifying");
+    console.log("Transfering and notifying:");
     await Promise.all([
-
-      YUAN.transfer(YUAN_ETHUSDCPool.address, twenty.toString()),
-      YUAN.transfer(YUAN_ETHDAIPool.address, twenty.toString()),
-      YUAN.transfer(YUAN_ETHUSDTPool.address, twenty.toString()),
-      YUAN.transfer(YUAN_ETHUSDxPool.address, twenty.toString()),
-
+      YUAN.transfer(YUANETHUSDCPool.address, TWENTY.toString()),
+      YUAN.transfer(YUANETHUSDTPool.address, TWENTY.toString()),
+      YUAN.transfer(YUANETHUSDxPool.address, TWENTY.toString()),
+      YUAN.transfer(YUANETHDAIPool.address, TWENTY.toString()),
     ]);
 
     await Promise.all([
-
-      eth_usdc_pool.methods.notifyRewardAmount(twenty.toString()).send({from:accounts[0]}),
-      eth_dai_pool.methods.notifyRewardAmount(twenty.toString()).send({from:accounts[0]}),
-      eth_usdt_pool.methods.notifyRewardAmount(twenty.toString()).send({from:accounts[0]}),
-      eth_usdx_pool.methods.notifyRewardAmount(twenty.toString()).send({ from: accounts[0] }),
-
+      yETHUSDCPool.notifyRewardAmount(TWENTY.toString()),
+      yETHUSDTPool.notifyRewardAmount(TWENTY.toString()),
+      yETHUSDxPool.notifyRewardAmount(TWENTY.toString()),
+      yETHDAIPool.notifyRewardAmount(TWENTY.toString()),
     ]);
 
     await Promise.all([
+      yETHUSDCPool.setRewardDistribution(Timelock.address),
+      yETHUSDTPool.setRewardDistribution(Timelock.address),
+      yETHUSDxPool.setRewardDistribution(Timelock.address),
+      yETHDAIPool.setRewardDistribution(Timelock.address),
+    ]);
 
-      eth_usdc_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_dai_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_usdt_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_usdx_pool.methods.setRewardDistribution(Timelock.address).send({from: accounts[0], gas: 100000}),
-
-      ]);
     await Promise.all([
-
-      eth_usdc_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_dai_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_usdt_pool.methods.transferOwnership(Timelock.address).send({from: accounts[0], gas: 100000}),
-      eth_usdx_pool.methods.transferOwnership(Timelock.address).send({ from: accounts[0], gas: 100000 }),
-
-      ]);
+      yETHUSDCPool.transferOwnership(Timelock.address),
+      yETHUSDTPool.transferOwnership(Timelock.address),
+      yETHUSDxPool.transferOwnership(Timelock.address),
+      yETHDAIPool.transferOwnership(Timelock.address),
+    ]);
   }
 
-  console.log("ETHUSDC contract:   ", YUAN_ETHUSDCPool.address)
-  console.log("ETHDAI contract:    ", YUAN_ETHDAIPool.address)
-  console.log("ETHUSDT contract:   ", YUAN_ETHUSDTPool.address)
-  console.log("ETHUSDx contract:   ", YUAN_ETHUSDxPool.address,"\n")
+  console.log("YUANETHUSDC contract:   ", YUANETHUSDCPool.address);
+  console.log("YUANETHUSDT contract:   ", YUANETHUSDTPool.address);
+  console.log("YUANETHUSDx contract:   ", YUANETHUSDxPool.address);
+  console.log("YUANETHDAI contract:    ", YUANETHDAIPool.address);
+  console.log("\n");
 }
