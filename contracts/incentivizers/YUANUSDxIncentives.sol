@@ -625,7 +625,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0xf0e5eb0B92F8427577469cC9B27eF67AeA19F115);
+    IERC20 public uni_lp = IERC20(0xd07fDaf7A4814a1b27F1E25D234C9b198c4ce798); // YUAN/USDx
 
     uint256 private _totalSupply;
 

@@ -630,7 +630,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0xAd09621AaAdCbce3d59D3ad16FA26d73bbe0Bb79); // eBTC/WBTC
+    IERC20 public uni_lp = IERC20(0x7B87626c73d7a6b075A000c8FA8C6C6528c23349); // eBTC/WBTC
 
     uint256 private _totalSupply;
 

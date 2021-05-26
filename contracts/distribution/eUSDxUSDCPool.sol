@@ -694,7 +694,7 @@ contract LPTokenWrapper {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    IERC20 public uni_lp = IERC20(0x7291c312E6333e58E2f1264162435429bc09EC4B); // USDx/USDC Pair
+    IERC20 public uni_lp = IERC20(0x2Ca3573702A9828732ed9C863aA361585526Ee9a); // USDx/USDC Pair
 
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
